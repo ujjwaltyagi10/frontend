@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
-import { RefreshControl, ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
-import { colors } from '@/theme';
+import { RefreshScrollView } from './refresh-scroll-view';
 
 type ScreenProps = {
   children: ReactNode;
@@ -31,16 +31,13 @@ export function Screen({
   return (
     <SafeAreaView edges={edges} className="flex-1 bg-page" testID={testID}>
       {scroll ? (
-        <ScrollView
+        <RefreshScrollView
           contentContainerClassName="gap-4 p-4"
           keyboardShouldPersistTaps="handled"
-          refreshControl={
-            onRefresh && (
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.text.primary} />
-            )
-          }>
+          onRefresh={onRefresh}
+          refreshing={refreshing}>
           {children}
-        </ScrollView>
+        </RefreshScrollView>
       ) : (
         <View className="flex-1 gap-4 p-4">{children}</View>
       )}

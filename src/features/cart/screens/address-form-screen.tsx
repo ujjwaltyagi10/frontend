@@ -58,10 +58,7 @@ export function AddressFormScreen() {
         contactPhone: v.contactPhone,
       },
       {
-        onSuccess: () => {
-          toast.success('Address saved');
-          router.back();
-        },
+        onSuccess: () => router.back(),
         onError: (e) => toast.error(errorMessage(e)),
       },
     );

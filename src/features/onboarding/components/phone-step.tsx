@@ -40,7 +40,7 @@ export function PhoneStep({
         <Checkbox
           value={whatsappOptIn}
           onValueChange={setWhatsappOptIn}
-          color={whatsappOptIn ? colors.brand.dark : undefined}
+          color={whatsappOptIn ? colors.brand.primaryStrong : undefined}
           accessible={false}
         />
         <Text>{t('login.whatsappOptIn')}</Text>

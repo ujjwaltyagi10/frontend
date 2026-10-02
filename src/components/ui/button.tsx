@@ -10,6 +10,8 @@ const variants = {
   secondary: { box: 'border border-line-strong bg-card', tone: 'default', spinner: colors.text.primary },
   dark: { box: 'bg-dark', tone: 'inverse', spinner: colors.brand.onDark },
   ghost: { box: 'bg-transparent', tone: 'default', spinner: colors.text.primary },
+  /** Text-only action in the brand colour ("Enter location manually"). */
+  link: { box: 'bg-transparent', tone: 'accent', spinner: colors.brand.primaryStrong },
   destructive: { box: 'border border-danger bg-card', tone: 'danger', spinner: colors.danger },
 } as const satisfies Record<string, { box: string; tone: TextTone; spinner: string }>;
 

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { useAppConfig, type User } from '@/api';
+import { illustrations } from '@/components/illustrations';
 import {
   Banner,
   ConfirmSheet,
@@ -58,6 +59,7 @@ export function ProfileScreen() {
             title={`ChoreDash Pass · ${pass.data.visitsTotal - pass.data.visitsUsed} visits left`}
             message={`Valid till ${formatDay(pass.data.expiresAt)}. Applied automatically when you book.`}
             onPress={() => router.push('/pass')}
+            art={illustrations.passTickets}
           />
         ) : (
           <Banner
@@ -65,6 +67,7 @@ export function ProfileScreen() {
             title="ChoreDash Pass"
             message="Save on your next 3 bookings"
             onPress={() => router.push('/pass')}
+            art={illustrations.passTickets}
           />
         ))}
 
@@ -162,11 +165,6 @@ export function ProfileScreen() {
   );
 }
 
-function initials(user: User) {
-  const letters = [user.firstName, user.lastName].filter(Boolean).map((n) => n![0]);
-  return (letters.join('') || user.phone.slice(-2)).toUpperCase();
-}
-
 /** Cyan header card: avatar, name and phone; tapping edits the profile (or logs a guest in). */
 function ProfileHeader({ user }: { user: User | null }) {
   const name = user ? [user.firstName, user.lastName].filter(Boolean).join(' ') : '';
@@ -177,13 +175,11 @@ function ProfileHeader({ user }: { user: User | null }) {
       onPress={() => router.push(user ? '/profile/edit' : '/login-modal')}
       className="flex-row items-center gap-4 rounded-hero bg-primary-deep p-4 active:opacity-90">
       <View className="h-14 w-14 items-center justify-center rounded-pill bg-card">
-        {user ? (
-          <Text variant="h3" tone="accent">
-            {initials(user)}
-          </Text>
-        ) : (
-          <Icon name={icons.profile} size={26} color={colors.brand.primaryStrong} />
-        )}
+        <Icon
+          name={{ ios: 'person.fill', android: 'person', web: 'person' }}
+          size={26}
+          color={colors.brand.primaryDeep}
+        />
       </View>
       <View className="flex-1 gap-0.5">
         <Text variant="h2" tone="onPrimary" numberOfLines={1}>
@@ -193,7 +189,6 @@ function ProfileHeader({ user }: { user: User | null }) {
           {user ? formatPhone(user.phone) : 'Log in to book, pay and see your bookings'}
         </Text>
       </View>
-      <Icon name={icons.chevronRight} size={14} color={colors.brand.onPrimary} />
     </Pressable>
   );
 }

@@ -21,7 +21,7 @@ export function BookingsScreen({ showTitle = true }: { showTitle?: boolean }) {
   const bookings = useBookings(tab);
 
   return (
-    <Screen testID="G1">
+    <Screen testID="G1" edges={showTitle ? ['top'] : []}>
       {showTitle && <Text variant="h1">My Bookings</Text>}
       <SegmentedTabs options={TABS} value={tab} onChange={setTab} />
       {isGuest ? (

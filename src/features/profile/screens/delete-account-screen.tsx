@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { Banner, Button, OtpInput, Screen, StickyFooter, Text, toast } from '@/components/ui';
+import { Banner, Button, OtpInput, Screen, StickyFooter, Text } from '@/components/ui';
 import { formatPhone } from '@/lib/format';
 import { useErrorMessage } from '@/lib/i18n';
 import { useSessionStore } from '@/stores';
@@ -25,7 +25,6 @@ export function DeleteAccountScreen() {
 
   const confirm = (code: string) =>
     remove.mutate(code, {
-      onSuccess: () => toast.success('Your account has been deleted'),
       onError: () => setOtp(''),
     });
 

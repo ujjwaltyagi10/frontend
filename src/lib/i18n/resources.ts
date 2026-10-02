@@ -4,9 +4,10 @@ import common from './locales/en/common.json';
 import errors from './locales/en/errors.json';
 import home from './locales/en/home.json';
 import onboarding from './locales/en/onboarding.json';
+import support from './locales/en/support.json';
 
 export const resources = {
-  en: { common, errors, home, onboarding },
+  en: { common, errors, home, onboarding, support },
 } as const;
 
 export const defaultNS = 'common';

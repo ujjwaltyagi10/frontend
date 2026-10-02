@@ -1,6 +1,6 @@
 // Profile + account deletion through the real API client and the mock backend (no UI).
 import { api, isApiError } from '@/api';
-import { useSessionStore } from '@/stores';
+import { useCartDraftStore, useLocationStore, useSessionStore } from '@/stores';
 
 async function login(phone: string) {
   await api.auth.sendOtp({ phone, whatsappOptIn: false });
@@ -20,6 +20,32 @@ describe('profile (mock backend)', () => {
       'VALIDATION_FAILED',
     );
     expect((await api.profile.update({ email: '' })).email).toBeNull();
+  });
+
+  it('returns fresh objects like a network, so a saved name re-renders Profile', async () => {
+    await login('9123456782');
+    const before = await api.profile.me();
+    const after = await api.profile.update({ firstName: 'Ujjwal' });
+    expect(after).not.toBe(before); // a new object, so React Query notifies the screen
+    expect(before.firstName).toBeNull(); // the earlier response wasn't edited in place
+    expect((await api.profile.me()).firstName).toBe('Ujjwal');
+  });
+
+  it("clears the user's cart and location on logout, so the next login fetches the location", async () => {
+    await login('9123456783');
+    useCartDraftStore.getState().addItem('laundry', 30);
+    useLocationStore.getState().setLocation({
+      label: 'Home',
+      line: 'HSR Layout',
+      lat: 12.9,
+      lng: 77.6,
+      serviceable: true,
+      hubId: 'hub_hsr',
+      addressId: null,
+    });
+    await useSessionStore.getState().signOut();
+    expect(useCartDraftStore.getState().items).toEqual([]);
+    expect(useLocationStore.getState().location).toBeNull();
   });
 
   it('needs the OTP to delete, and erases the account', async () => {

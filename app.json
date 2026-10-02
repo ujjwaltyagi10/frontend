@@ -8,11 +8,13 @@
     "scheme": "choredash",
     "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/icon.png"
     },
     "android": {
+      "package": "com.choredash.customer",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#FBF8EF",
+        "backgroundColor": "#0EA5E9",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -29,9 +31,10 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#FBF8EF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#38BDF8",
+          "image": "./assets/images/splash-wordmark.png",
+          "imageWidth": 300,
+          "resizeMode": "contain"
         }
       ],
       "expo-secure-store",
@@ -40,12 +43,13 @@
         {
           "locationWhenInUsePermission": "ChoreDash uses your location to show house-help services available near you."
         }
-      ]
+      ],
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
-    "backgroundColor": "#FBF8EF"
+    "backgroundColor": "#FFFFFF"
   }
 }

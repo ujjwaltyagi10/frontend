@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { View } from 'react-native';
 
 import { Button, OtpInput, Text } from '@/components/ui';
 import { OTP_RESEND_SECONDS } from '@/config/constants';
@@ -45,7 +46,14 @@ export function OtpStep({ phone, onVerified }: { phone: string; onVerified?: () 
 
   return (
     <>
-      <Text variant="h2">{t('otp.title', { phone: formatPhone(phone) })}</Text>
+      <View className="items-center gap-0.5">
+        <Text variant="h2" className="text-center">
+          {t('otp.title')}
+        </Text>
+        <Text variant="h3" tone="accent" numberOfLines={1}>
+          {formatPhone(phone)}
+        </Text>
+      </View>
       <OtpInput
         value={otp}
         onChangeText={(v) => {
@@ -56,17 +64,24 @@ export function OtpStep({ phone, onVerified }: { phone: string; onVerified?: () 
         error={verify.isError}
         disabled={verify.isPending}
       />
-      {verify.isError && <Text tone="danger">{errorMessage(verify.error)}</Text>}
+      {verify.isError && (
+        <Text tone="danger" className="text-center">
+          {errorMessage(verify.error)}
+        </Text>
+      )}
       {env.useMocks && (
-        <Text variant="caption" tone="muted">
+        <Text variant="caption" tone="muted" className="text-center">
           {t('otp.mockHint')}
         </Text>
       )}
       {secondsLeft > 0 ? (
-        <Text tone="muted">{t('otp.resendIn', { seconds: secondsLeft })}</Text>
+        <Text tone="muted" className="text-center">
+          {t('otp.resendIn', { seconds: secondsLeft })}
+        </Text>
       ) : (
         <Button
-          variant="ghost"
+          variant="link"
+          className="self-center"
           title={t('otp.resend')}
           loading={resend.isPending}
           onPress={() =>

@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen } from '@testing-library/react-native';
 
+import { api } from '@/api';
 import { useCartDraftStore, useLocationStore, useSessionStore } from '@/stores';
 
 import { CartScreen } from './cart-screen';
@@ -34,10 +35,18 @@ function renderCart() {
   );
 }
 
-beforeEach(() => {
+// A real (mock) session: a fake one gets a 401, which logs out — and logging out empties the cart.
+let session: Awaited<ReturnType<typeof api.auth.verifyOtp>>;
+beforeAll(async () => {
+  const phone = '9123456790';
+  await api.auth.sendOtp({ phone, whatsappOptIn: false });
+  session = await api.auth.verifyOtp({ phone, otp: '123456' });
+});
+
+beforeEach(async () => {
+  await useSessionStore.getState().signIn(session, session.user); // the guest test switches it
   useCartDraftStore.getState().clear();
   useLocationStore.setState({ location });
-  useSessionStore.setState({ status: 'authenticated', user: null });
 });
 
 describe('CartScreen (against the mock API)', () => {

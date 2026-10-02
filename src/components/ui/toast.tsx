@@ -5,25 +5,26 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FullWindowOverlay } from 'react-native-screens';
 import { create } from 'zustand';
 
-import { colors } from '@/theme';
+import { colors, shadows } from '@/theme';
 
 import { Icon, icons } from './icon';
 import { Text } from './text';
 
-type ToastItem = { id: number; kind: 'success' | 'error'; message: string };
+type ToastItem = { id: number; message: string };
 
 const useToastStore = create<{ current: ToastItem | null }>(() => ({
   current: null,
 }));
 
 let nextId = 1;
-const show = (kind: ToastItem['kind'], message: string) =>
-  useToastStore.setState({ current: { id: nextId++, kind, message } });
+const show = (message: string) => useToastStore.setState({ current: { id: nextId++, message } });
 
-/** Fire-and-forget feedback from anywhere: `toast.success('Address saved')`. */
+/**
+ * Errors only: `toast.error(errorMessage(e))`. Success needs no toast — the screen change (going
+ * back, the new value showing) is the confirmation.
+ */
 export const toast = {
-  success: (message: string) => show('success', message),
-  error: (message: string) => show('error', message),
+  error: (message: string) => show(message),
   hide: () => useToastStore.setState({ current: null }),
 };
 
@@ -52,14 +53,10 @@ export function ToastHost() {
           exiting={FadeOutUp}
           accessibilityRole="alert"
           accessibilityLiveRegion="polite"
-          className="flex-row items-center gap-3 rounded-card bg-dark px-4 py-3">
-          <Icon
-            name={current.kind === 'success' ? icons.check : icons.warning}
-            color={current.kind === 'success' ? colors.brand.primary : colors.danger}
-          />
-          <Text tone="inverse" className="flex-1">
-            {current.message}
-          </Text>
+          className="flex-row items-center gap-3 rounded-card border border-line bg-card px-4 py-3"
+          style={{ boxShadow: shadows.raised }}>
+          <Icon name={icons.warning} color={colors.danger} />
+          <Text className="flex-1">{current.message}</Text>
         </Animated.View>
       </View>
     </Overlay>

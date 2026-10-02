@@ -1,0 +1,40 @@
+{
+  "heroTitle": "How can we help?",
+  "heroSubtitle": "Ask us anything about your bookings, payments or Pass.",
+  "getHelp": "Get help",
+  "chat": "Chat with support",
+  "chatSub": "Talk to our team",
+  "booking": "Help with a booking",
+  "bookingSub": "Pick the booking you need help with",
+  "faqsTitle": "FAQs",
+  "faqs": {
+    "how": {
+      "q": "How does a booking work?",
+      "a": "Pick the services and how many minutes you need. One trained professional comes over and works through them in order. You pay before the visit is confirmed."
+    },
+    "included": {
+      "q": "What is included in a visit?",
+      "a": "Any of the tasks you booked, within the booked time. Cooking, deep cleaning, heavy lifting and electrical or plumbing work are not included."
+    },
+    "price": {
+      "q": "How is the price decided?",
+      "a": "The cart always shows the final price from our server, including taxes and any Pass, coupon or wallet savings. What you see before paying is what you pay."
+    },
+    "pass": {
+      "q": "How does ChoreDash Pass work?",
+      "a": "The Pass gives you discounted visits for a fixed period. It is applied automatically when you book — you don't need to do anything at checkout."
+    },
+    "money": {
+      "q": "What is ChoreDash Money?",
+      "a": "A wallet in the app. Add money once and pay for bookings in one tap. Top-ups of ₹250 or more get extra reward balance."
+    },
+    "cancel": {
+      "q": "Can I cancel or reschedule a booking?",
+      "a": "Choose Help with a booking above, pick the booking and chat with us — we'll help you change or cancel it."
+    },
+    "failed": {
+      "q": "My payment failed but money was deducted",
+      "a": "Don't worry — you are never charged twice. The booking is either confirmed automatically or the amount is refunded to your original payment method."
+    }
+  }
+}

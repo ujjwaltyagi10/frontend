@@ -1,14 +1,23 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { illustrations } from '@/components/illustrations';
-import { Banner, Button, Icon, IconButton, icons, Skeleton, StateView, Text } from '@/components/ui';
+import {
+  Banner,
+  Icon,
+  IconButton,
+  icons,
+  RefreshScrollView,
+  Skeleton,
+  StateView,
+  Text,
+} from '@/components/ui';
 import { useTranslation } from '@/lib/i18n';
 import { useCartDraftStore, useLocationStore, useSessionStore } from '@/stores';
-import { colors } from '@/theme';
 
+import { ComingSoonCard } from '../components/coming-soon-card';
 import { HeroAction } from '../components/hero-action';
 import { ServiceTile, ServiceTileSkeleton } from '../components/service-tile';
 import { useHome } from '../hooks/use-home';
@@ -63,30 +72,8 @@ export function HomeScreen() {
       ) : home.isError ? (
         <StateView state="error" error={home.error} onRetry={() => home.refetch()} />
       ) : (
-        <ScrollView
-          contentContainerClassName="gap-5 p-4 pb-8"
-          refreshControl={
-            <RefreshControl
-              refreshing={home.isRefetching}
-              onRefresh={home.refetch}
-              tintColor={colors.text.primary}
-            />
-          }>
-          {!location?.serviceable && (
-            <Banner
-              tone="warning"
-              title="We are coming soon"
-              message="ChoreDash isn't in your area yet. Browse what we offer below."
-              action={
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  title="Change"
-                  onPress={() => router.push('/change-location')}
-                />
-              }
-            />
-          )}
+        <RefreshScrollView contentContainerClassName="gap-5 p-4 pb-8" onRefresh={home.refetch}>
+          {!location?.serviceable && <ComingSoonCard />}
           <View className="flex-row items-end">
             <Text variant="h2" className="flex-1 pb-3">
               {home.data.headline}
@@ -120,13 +107,7 @@ export function HomeScreen() {
               title={home.data.passBanner.title}
               message={home.data.passBanner.subtitle}
               onPress={() => router.push('/pass')}
-              action={
-                <Image
-                  source={illustrations.passTickets}
-                  style={{ width: 72, height: 54, marginVertical: -8 }}
-                  accessible={false}
-                />
-              }
+              art={illustrations.passTickets}
             />
           )}
           <View className="gap-0.5">
@@ -143,7 +124,7 @@ export function HomeScreen() {
           <Text variant="caption" tone="muted" className="text-center">
             {t('trust', { families: home.data.trust.familiesServed, rating: home.data.trust.avgRating })}
           </Text>
-        </ScrollView>
+        </RefreshScrollView>
       )}
     </SafeAreaView>
   );

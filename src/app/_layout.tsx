@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 
 import { ToastHost } from '@/components/ui';
 import { AppProviders } from '@/providers/app-providers';
+import { BrandSplash } from '@/providers/brand-splash';
 import { ForceUpdateGate } from '@/providers/force-update-gate';
 import { useBootstrap } from '@/providers/use-bootstrap';
 import { useLocationStore, useSessionStore } from '@/stores';
@@ -20,6 +21,7 @@ export default function RootLayout() {
       <ForceUpdateGate>
         <RootStack />
       </ForceUpdateGate>
+      <BrandSplash />
       <ToastHost />
     </AppProviders>
   );

@@ -2,7 +2,7 @@ import { Redirect, useLocalSearchParams } from 'expo-router';
 
 import { request } from '@/api';
 import { env } from '@/config/env';
-import { useCartDraftStore, useSessionStore } from '@/stores';
+import { useCartDraftStore, useLocationStore, useSessionStore } from '@/stores';
 import { useState } from 'react';
 import { View } from 'react-native';
 
@@ -65,7 +65,7 @@ export function GalleryScreen() {
         <Section title="Mock backend">
           <Text variant="caption" tone="muted">
             Mock data (bookings, wallet, Pass, addresses, your profile) is saved on this device. Reset wipes
-            it and logs you out.
+            it, logs you out and forgets the location, so the app starts like a fresh install.
           </Text>
           <Button
             title="Reset mock data"
@@ -73,8 +73,8 @@ export function GalleryScreen() {
             onPress={async () => {
               await request({ method: 'POST', path: '/dev/mock/reset' });
               useCartDraftStore.getState().clear();
+              useLocationStore.getState().clear();
               await useSessionStore.getState().signOut();
-              toast.success('Mock data reset');
             }}
           />
         </Section>
@@ -148,7 +148,7 @@ export function GalleryScreen() {
           <Text weight="semibold">Default card</Text>
           <Text tone="muted">Flat with a 1px border.</Text>
         </Card>
-        <Card tone="tint" onPress={() => toast.success('Card pressed')}>
+        <Card tone="tint" onPress={() => toast.error('Card pressed')}>
           <Text weight="semibold">Tappable tint card</Text>
         </Card>
         <Banner tone="warning" title="No instant slots right now" message="Please schedule the order." />
@@ -183,7 +183,7 @@ export function GalleryScreen() {
             title="Success toast"
             size="sm"
             variant="secondary"
-            onPress={() => toast.success('Address saved')}
+            onPress={() => toast.error('Something went wrong')}
           />
           <Button
             title="Error toast"

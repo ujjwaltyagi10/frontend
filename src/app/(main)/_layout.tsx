@@ -38,7 +38,8 @@ export default function MainLayout() {
       <Stack.Screen name="referral" options={{ title: 'Refer & earn' }} />
       <Stack.Screen name="change-location" options={{ title: 'Change location', presentation: 'modal' }} />
       <Stack.Screen name="profile" options={{ headerShown: false }} />
-      <Stack.Screen name="login-modal" options={{ title: 'Log in', presentation: 'modal' }} />
+      {/* Full screen like first-run A7, so the brand header always sits under the status bar. */}
+      <Stack.Screen name="login-modal" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
     </Stack>
   );
 }

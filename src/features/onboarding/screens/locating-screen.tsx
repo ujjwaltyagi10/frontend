@@ -8,12 +8,16 @@ import { LOCATION_TIMEOUT_MS } from '@/config/constants';
 import { useTranslation } from '@/lib/i18n';
 import { colors } from '@/theme';
 
+import { CityAnimation } from '../components/city-animation';
 import { useResolveLocation } from '../hooks/use-resolve-location';
 
 const timeout = (ms: number) =>
   new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms));
 
-/** A3–A4 — get a GPS fix, check serviceability; denied or slow → manual search (A5). */
+/**
+ * A3–A4 — right after login: ask for permission, get a GPS fix, check serviceability. Success shows
+ * Home (the root layout switches once a location exists); denied or slow → manual search (A5).
+ */
 export function LocatingScreen() {
   const { t } = useTranslation('onboarding');
   const resolve = useResolveLocation();
@@ -39,10 +43,15 @@ export function LocatingScreen() {
   }, [mutate]);
 
   return (
-    <Screen scroll={false} testID="A4">
-      <View className="flex-1 items-center justify-center gap-3">
-        <ActivityIndicator color={colors.text.primary} />
-        <Text>{t('location.fetching')}</Text>
+    <Screen scroll={false} edges={['top', 'bottom']} testID="A4">
+      <View className="gap-2 pt-6">
+        <Text variant="h1">{t('location.title')}</Text>
+        <Text tone="muted">{t('location.subtitle')}</Text>
+      </View>
+      <CityAnimation />
+      <View className="flex-row items-center justify-center gap-3 pb-6" accessibilityLiveRegion="polite">
+        <ActivityIndicator color={colors.brand.primaryStrong} />
+        <Text weight="medium">{t('location.fetching')}</Text>
       </View>
     </Screen>
   );

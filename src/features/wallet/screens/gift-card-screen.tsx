@@ -2,8 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { Button, Input, Screen, StickyFooter, Text, toast } from '@/components/ui';
-import { formatMoney } from '@/lib/format';
+import { Button, Input, Screen, StickyFooter, Text } from '@/components/ui';
 import { useErrorMessage } from '@/lib/i18n';
 
 import { useRedeemGiftCard } from '../hooks/use-wallet';
@@ -25,10 +24,7 @@ export function GiftCardScreen() {
 
   const apply = () =>
     redeem.mutate(code, {
-      onSuccess: (r) => {
-        toast.success(`${formatMoney(r.creditedPaise)} added to your wallet`);
-        router.back();
-      },
+      onSuccess: () => router.back(),
     });
 
   return (

@@ -60,10 +60,7 @@ function Form({ phone, defaults }: { phone: string; defaults: FormValues }) {
     update.mutate(
       { firstName: v.firstName.trim(), lastName: v.lastName.trim(), email: v.email.trim() },
       {
-        onSuccess: () => {
-          toast.success('Profile updated');
-          router.back();
-        },
+        onSuccess: () => router.back(),
         onError: (e) => toast.error(errorMessage(e)),
       },
     ),

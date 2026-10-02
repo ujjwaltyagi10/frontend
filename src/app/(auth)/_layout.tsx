@@ -1,17 +1,20 @@
 import { Stack } from 'expo-router';
 
-import { useLocationStore } from '@/stores';
+import { useSessionStore } from '@/stores';
 
-/** Onboarding stack (A2–A11): location first, then login. */
+/** Onboarding stack: log in (or skip) first, then fetch the location (A3–A4); the root then shows Home. */
 export default function AuthLayout() {
-  const hasLocation = useLocationStore((s) => s.location !== null);
+  const status = useSessionStore((s) => s.status);
+  const signedIn = status === 'guest' || status === 'authenticated';
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={!hasLocation}>
-        <Stack.Screen name="location" />
+      <Stack.Protected guard={!signedIn}>
+        <Stack.Screen name="login" />
+        <Stack.Screen name="otp" />
       </Stack.Protected>
-      <Stack.Screen name="login" />
-      <Stack.Screen name="otp" options={{ headerShown: true, title: '', headerTransparent: true }} />
+      <Stack.Protected guard={signedIn}>
+        <Stack.Screen name="fetch-location" options={{ animation: 'fade' }} />
+      </Stack.Protected>
     </Stack>
   );
 }

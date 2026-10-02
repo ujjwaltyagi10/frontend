@@ -6,6 +6,9 @@ import { queryClient, setAuthFailureHandler, type AuthTokens, type User } from '
 import { tokenStorage } from '@/lib/auth/token-storage';
 import { secureStorage } from '@/lib/storage/secure-storage';
 
+import { useCartDraftStore } from './cart-draft-store';
+import { useLocationStore } from './location-store';
+
 type Status = 'loading' | 'signedOut' | 'guest' | 'authenticated';
 
 type SessionState = {
@@ -47,10 +50,14 @@ export const useSessionStore = create<SessionState>()((set) => ({
     set({ user });
   },
 
-  // Logout clears tokens, the query cache and persisted client state (Frontend Spec → H11).
+  // Logout clears tokens, the query cache and persisted client state (Frontend Spec → H11) —
+  // including the cart and the location, which belong to this user. The next login then goes
+  // through fetching the location (A4) again. A guest's cart is kept when they log in.
   signOut: async () => {
     await Promise.all([tokenStorage.clear(), secureStorage.remove(USER_KEY)]);
     queryClient.clear();
+    useCartDraftStore.getState().clear();
+    useLocationStore.getState().clear();
     set({ status: 'signedOut', user: null });
   },
 }));

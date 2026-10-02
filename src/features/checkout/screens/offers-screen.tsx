@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 
 import { api, queryKeys, type Offer } from '@/api';
-import { Badge, Button, Card, Input, Screen, SkeletonText, StateView, Text, toast } from '@/components/ui';
+import { Badge, Button, Card, Input, Screen, SkeletonText, StateView, Text } from '@/components/ui';
 import { track } from '@/lib/analytics';
 import { useCartDraftStore } from '@/stores';
 
@@ -21,7 +21,6 @@ export function OffersScreen() {
     if (!c) return;
     setCoupon(c);
     track('coupon_applied', { code_type: 'manual' });
-    toast.success(`${c} added — check the bill in your cart`);
     router.back();
   };
 

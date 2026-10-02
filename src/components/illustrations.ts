@@ -37,3 +37,11 @@ export const illustrations = {
   emptyBookings: require('@/assets/illustrations/empty-bookings.png') as ImageSource,
   paymentSuccess: require('@/assets/illustrations/payment-success.png') as ImageSource,
 };
+
+/** Looping clips (720 × 960 H.264, silent, background lifted to pure white). Play with expo-video. */
+export const animations = {
+  /** A4 fetching location: pins bob over the isometric city. */
+  locationCity: require('@/assets/illustrations/location-city.mp4') as number,
+  /** Its first frame, same crop and edge fades — shown before the clip starts and as it unmounts. */
+  locationCityPoster: require('@/assets/illustrations/location-city-poster.jpg') as ImageSource,
+};

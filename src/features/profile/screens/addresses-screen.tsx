@@ -84,10 +84,7 @@ export function AddressesScreen() {
         onConfirm={() =>
           confirm &&
           remove.mutate(confirm.id, {
-            onSuccess: () => {
-              setConfirm(null);
-              toast.success('Address deleted');
-            },
+            onSuccess: () => setConfirm(null),
             onError: (e) => toast.error(errorMessage(e)),
           })
         }

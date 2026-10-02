@@ -1,3 +1,4 @@
+import { Image, type ImageSource } from 'expo-image';
 import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 
@@ -19,20 +20,29 @@ type Props = {
   onPress?: () => void;
   /** Trailing element, e.g. a "See savings" link. */
   action?: ReactNode;
+  /** 3D illustration shown on a white tile in place of the glyph (offer cards). */
+  art?: ImageSource;
 };
 
 /** Inline notice: "No instant slots" / "Large order" (warning), Pass and wallet offers (offer). */
-export function Banner({ tone = 'info', title, message, onPress, action }: Props) {
+export function Banner({ tone = 'info', title, message, onPress, action, art }: Props) {
   const t = tones[tone];
+  const offer = tone === 'offer';
   const body = (
-    <View className={`flex-row items-start gap-3 rounded-card p-4 ${t.box}`}>
-      <Icon name={t.icon} color={tone === 'offer' ? colors.brand.onPrimary : colors.text.primary} />
+    <View className={`flex-row gap-3 rounded-card p-4 ${offer ? 'items-center' : 'items-start'} ${t.box}`}>
+      {art ? (
+        <View className="h-14 w-14 items-center justify-center rounded-card bg-card">
+          <Image source={art} style={{ width: 46, height: 46 }} contentFit="contain" accessible={false} />
+        </View>
+      ) : (
+        <Icon name={t.icon} color={offer ? colors.brand.onPrimary : colors.text.primary} />
+      )}
       <View className="flex-1 gap-0.5">
         <Text weight="semibold" tone={t.text}>
           {title}
         </Text>
         {message && (
-          <Text variant="caption" tone={tone === 'offer' ? 'onPrimaryMuted' : 'muted'}>
+          <Text variant="caption" tone={offer ? 'onPrimaryMuted' : 'muted'}>
             {message}
           </Text>
         )}

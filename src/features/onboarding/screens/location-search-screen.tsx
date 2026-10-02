@@ -32,7 +32,7 @@ export function LocationSearchScreen() {
   const resolve = useResolveLocation();
 
   return (
-    <Screen testID="A5">
+    <Screen edges={[]} testID="A5">
       <Input
         autoFocus
         value={q}

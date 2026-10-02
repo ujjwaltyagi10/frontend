@@ -3,6 +3,7 @@ import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import type { ColorValue } from 'react-native';
 
 import { PillTabBar } from '@/components/navigation/pill-tab-bar';
+import { CartBar } from '@/features/cart';
 import { useTranslation } from '@/lib/i18n';
 import { useSessionStore } from '@/stores';
 import { colors } from '@/theme';
@@ -22,7 +23,13 @@ export default function TabsLayout() {
 
   return (
     <Tabs
-      tabBar={(props) => <PillTabBar {...props} />}
+      tabBar={(props) => (
+        <>
+          {/* Mini cart floats above the tabs on Home (B7), like the reference app. */}
+          {props.state.routes[props.state.index]?.name === 'index' && <CartBar />}
+          <PillTabBar {...props} />
+        </>
+      )}
       screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: colors.surface.page } }}>
       <Tabs.Screen
         name="index"

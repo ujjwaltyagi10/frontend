@@ -45,6 +45,13 @@ const LOG = __DEV__ && process.env.NODE_ENV !== 'test';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * Copy through JSON like a real network round trip. Handlers return live db objects; handing those
+ * to the app would let a later in-place edit change cached data behind React Query's back (same
+ * reference → no re-render), e.g. a saved name not showing on Profile.
+ */
+const wire = <T>(v: T): T => (v === undefined ? v : JSON.parse(JSON.stringify(v)));
+
 export const createMockTransport =
   (): Transport =>
   async ({ method, path, query, body, headers }) => {
@@ -56,9 +63,9 @@ export const createMockTransport =
       if (!match) continue;
       const params = Object.fromEntries(r.keys.map((k, i) => [k, decodeURIComponent(match[i + 1])]));
       try {
-        const result = await r.handler({ params, query, body, headers });
+        const result = await r.handler({ params, query, body: wire(body), headers });
         if (LOG) console.log(`[mock] ${method} ${path} → 200`);
-        return { status: 200, body: result ?? null };
+        return { status: 200, body: wire(result ?? null) };
       } catch (e) {
         if (e instanceof MockHttpError) {
           if (LOG) console.log(`[mock] ${method} ${path} → ${e.status} ${e.code}`);

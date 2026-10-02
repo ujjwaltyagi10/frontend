@@ -1,19 +1,25 @@
 {
   "location": {
     "title": "What's your location?",
-    "subtitle": "We need your location to show available services near you",
+    "subtitle": "We need your location to show you services available near you",
     "useCurrent": "Use current location",
-    "enterManually": "Enter location manually",
     "fetching": "Fetching location..."
   },
   "login": {
     "title": "Log in or Sign up",
     "phonePlaceholder": "Enter mobile number",
     "whatsappOptIn": "Get updates on WhatsApp",
-    "skip": "Skip login"
+    "skip": "Skip login",
+    "tagline": "Professional house help in minutes",
+    "legalPrefix": "By continuing, you agree to our",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "notNow": "Not now",
+    "cartSaved": "Log in to book and pay. Your cart is saved.",
+    "changeNumber": "Change number"
   },
   "otp": {
-    "title": "Enter the OTP sent to {{phone}}",
+    "title": "Enter the OTP sent to",
     "resendIn": "Resend SMS in {{seconds}}s",
     "resend": "Resend SMS",
     "mockHint": "Mock mode: use OTP 123456"

@@ -4,5 +4,10 @@
   "pickSlot": "Pick a slot",
   "allServices": "All house help services",
   "allServicesSub": "Schedule & book for later",
-  "trust": "Trusted by {{families}} families · rated {{rating}}"
+  "trust": "Trusted by {{families}} families · rated {{rating}}",
+  "comingSoon": {
+    "title": "We're coming soon",
+    "message": "ChoreDash isn't in your area yet. Browse what we offer below.",
+    "change": "Change"
+  }
 }

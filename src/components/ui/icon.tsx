@@ -22,6 +22,7 @@ export const icons = {
   back: { ios: 'chevron.left', android: 'arrow_back', web: 'arrow_back' },
   chevronRight: { ios: 'chevron.right', android: 'chevron_right', web: 'chevron_right' },
   chevronDown: { ios: 'chevron.down', android: 'expand_more', web: 'expand_more' },
+  chevronUp: { ios: 'chevron.up', android: 'expand_less', web: 'expand_less' },
   close: { ios: 'xmark', android: 'close', web: 'close' },
   plus: { ios: 'plus', android: 'add', web: 'add' },
   minus: { ios: 'minus', android: 'remove', web: 'remove' },

@@ -10,6 +10,8 @@ import { useEffect, useState } from 'react';
 import { useLocationStore, useSessionStore } from '@/stores';
 
 void SplashScreen.preventAutoHideAsync();
+// Fade the sky-blue splash out instead of cutting to the first screen.
+SplashScreen.setOptions({ duration: 300, fade: true });
 
 /**
  * A1 Splash: keep the native splash up until fonts, the session and persisted stores are read,
