@@ -1,0 +1,21 @@
+{
+  "location": {
+    "title": "What's your location?",
+    "subtitle": "We need your location to show available services near you",
+    "useCurrent": "Use current location",
+    "enterManually": "Enter location manually",
+    "fetching": "Fetching location..."
+  },
+  "login": {
+    "title": "Log in or Sign up",
+    "phonePlaceholder": "Enter mobile number",
+    "whatsappOptIn": "Get updates on WhatsApp",
+    "skip": "Skip login"
+  },
+  "otp": {
+    "title": "Enter the OTP sent to {{phone}}",
+    "resendIn": "Resend SMS in {{seconds}}s",
+    "resend": "Resend SMS",
+    "mockHint": "Mock mode: use OTP 123456"
+  }
+}

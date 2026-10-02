@@ -1,0 +1,22 @@
+{
+  "OTP_INVALID": "Incorrect OTP. Please try again.",
+  "OTP_LOCKED": "Too many attempts. Try again in 15 minutes.",
+  "OTP_SEND_LIMIT": "Too many OTP requests. Please wait a few minutes.",
+  "SLOT_UNAVAILABLE": "That slot was just taken. Please pick another.",
+  "LARGE_ORDER_SCHEDULE_ONLY": "Large order! No instant slots right now. Please schedule it.",
+  "NOT_SERVICEABLE": "We're not in your area yet.",
+  "PAYMENT_FAILED": "Payment didn't go through. No money was taken, or it will be refunded.",
+  "LOGIN_REQUIRED": "Please log in to continue.",
+  "UNAUTHORIZED": "Your session has expired. Please log in again.",
+  "FORBIDDEN": "You don't have access to this.",
+  "PARTNER_NOT_REGISTERED": "This number isn't registered. Contact your ChoreDash hub.",
+  "RATE_LIMITED": "Too many requests. Please wait a moment and try again.",
+  "CONFLICT": "This was changed elsewhere. Please refresh and try again.",
+  "NOT_FOUND": "We couldn't find that.",
+  "VALIDATION_FAILED": "Please check the details and try again.",
+  "NOT_IMPLEMENTED": "This isn't available yet.",
+  "GIFT_CARD_INVALID": "That gift card code isn't valid. Check it and try again.",
+  "GIFT_CARD_LOCKED": "Too many wrong codes. Try again in an hour.",
+  "NETWORK_ERROR": "No internet connection. Please try again.",
+  "UNKNOWN": "Something went wrong. Please try again."
+}

@@ -1,0 +1,17 @@
+{
+  "appName": "ChoreDash",
+  "tagline": "Get professional house help in minutes!",
+  "actions": {
+    "continue": "Continue",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "back": "Back",
+    "book": "BOOK",
+    "contactSupport": "Contact support"
+  },
+  "tabs": { "home": "Home", "bookings": "Bookings", "money": "Money" },
+  "states": {
+    "offline": "You're offline",
+    "comingSoon": "Coming soon"
+  }
+}

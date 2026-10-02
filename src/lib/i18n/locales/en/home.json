@@ -1,0 +1,8 @@
+{
+  "instant": "Get Instant Service",
+  "schedule": "Schedule for Later",
+  "pickSlot": "Pick a slot",
+  "allServices": "All house help services",
+  "allServicesSub": "Schedule & book for later",
+  "trust": "Trusted by {{families}} families · rated {{rating}}"
+}
