@@ -2,6 +2,7 @@ import * as Location from 'expo-location';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import { initialWindowMetrics } from 'react-native-safe-area-context';
 
 import { Screen, Text } from '@/components/ui';
 import { LOCATION_TIMEOUT_MS } from '@/config/constants';
@@ -43,7 +44,10 @@ export function LocatingScreen() {
   }, [mutate]);
 
   return (
-    <Screen scroll={false} edges={['top', 'bottom']} testID="A4">
+    // Insets from app launch, not live ones: Android hides the status bar while its permission
+    // dialog is up, and live insets made the whole screen jump.
+    <Screen scroll={false} edges={[]} testID="A4">
+      <View style={{ height: initialWindowMetrics?.insets.top ?? 0 }} />
       <View className="gap-2 pt-6">
         <Text variant="h1">{t('location.title')}</Text>
         <Text tone="muted">{t('location.subtitle')}</Text>
@@ -53,6 +57,7 @@ export function LocatingScreen() {
         <ActivityIndicator color={colors.brand.primaryStrong} />
         <Text weight="medium">{t('location.fetching')}</Text>
       </View>
+      <View style={{ height: initialWindowMetrics?.insets.bottom ?? 0 }} />
     </Screen>
   );
 }

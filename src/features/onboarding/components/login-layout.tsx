@@ -1,6 +1,6 @@
 import { openBrowserAsync, WebBrowserPresentationStyle } from 'expo-web-browser';
-import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { Keyboard, Platform, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAppConfig } from '@/api';
@@ -28,15 +28,15 @@ export function LoginLayout({ corner, collage = true, legal = true, testID, chil
   const { t } = useTranslation('onboarding');
   const insets = useSafeAreaInsets();
   const links = useAppConfig().data?.links;
+  const scrollRef = useRef<ScrollView>(null);
+  const keyboardHeight = useKeyboardLift(scrollRef);
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      className="flex-1 bg-page"
-      testID={testID}>
+    <View className="flex-1 bg-page" testID={testID}>
       <ScrollView
+        ref={scrollRef}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
+        contentContainerStyle={{ paddingBottom: (keyboardHeight || insets.bottom) + 16 }}>
         <View className="rounded-b-hero bg-primary px-4 pb-8" style={{ paddingTop: insets.top + 12 }}>
           <Pressable
             accessibilityRole="button"
@@ -88,6 +88,29 @@ export function LoginLayout({ corner, collage = true, legal = true, testID, chil
           )}
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
+}
+
+/**
+ * Keeps the form above the keyboard on both platforms: room for the keyboard under the content,
+ * then scroll to the end so "Log in or Sign up", the field and Continue sit just above it.
+ * (KeyboardAvoidingView did nothing on Android's edge-to-edge window and too little on iOS.)
+ */
+function useKeyboardLift(scrollRef: RefObject<ScrollView | null>) {
+  const [height, setHeight] = useState(0);
+  useEffect(() => {
+    const ios = Platform.OS === 'ios';
+    const show = Keyboard.addListener(ios ? 'keyboardWillShow' : 'keyboardDidShow', (e) => {
+      setHeight(e.endCoordinates.height);
+      // After the padding lands, so there is room to scroll into.
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), ios ? 50 : 100);
+    });
+    const hide = Keyboard.addListener(ios ? 'keyboardWillHide' : 'keyboardDidHide', () => setHeight(0));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, [scrollRef]);
+  return height;
 }
