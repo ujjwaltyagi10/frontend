@@ -1,7 +1,9 @@
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { illustrations } from '@/components/illustrations';
 import { Banner, Button, Icon, IconButton, icons, Skeleton, StateView, Text } from '@/components/ui';
 import { useTranslation } from '@/lib/i18n';
 import { useCartDraftStore, useLocationStore, useSessionStore } from '@/stores';
@@ -40,12 +42,13 @@ export function HomeScreen() {
           </Text>
         </Pressable>
         {!isGuest && (
-          <IconButton
-            variant="filled"
-            icon={icons.wallet}
+          <Pressable
+            accessibilityRole="button"
             accessibilityLabel="ChoreDash Money"
             onPress={() => router.push('/wallet')}
-          />
+            className="h-10 w-10 items-center justify-center rounded-pill bg-muted active:opacity-70">
+            <Image source={illustrations.wallet} style={{ width: 28, height: 28 }} accessible={false} />
+          </Pressable>
         )}
         <IconButton
           variant="filled"
@@ -84,13 +87,21 @@ export function HomeScreen() {
               }
             />
           )}
-          <Text variant="h2">{home.data.headline}</Text>
+          <View className="flex-row items-end">
+            <Text variant="h2" className="flex-1 pb-3">
+              {home.data.headline}
+            </Text>
+            <Image
+              source={illustrations.heroPro}
+              style={{ width: 112, height: 150, marginBottom: -20 }}
+              accessible={false}
+            />
+          </View>
           <View className="flex-row gap-3">
             <HeroAction
-              primary
               title={t('instant')}
               subtitle="In 30 minutes"
-              icon={{ ios: 'bolt.fill', android: 'bolt', web: 'bolt' }}
+              art={illustrations.instant}
               onPress={() => {
                 setMode('instant');
                 router.push('/cart');
@@ -99,7 +110,7 @@ export function HomeScreen() {
             <HeroAction
               title={t('schedule')}
               subtitle={t('pickSlot')}
-              icon={{ ios: 'calendar', android: 'calendar_month', web: 'calendar_month' }}
+              art={illustrations.schedule}
               onPress={() => router.push('/schedule')}
             />
           </View>
@@ -109,6 +120,13 @@ export function HomeScreen() {
               title={home.data.passBanner.title}
               message={home.data.passBanner.subtitle}
               onPress={() => router.push('/pass')}
+              action={
+                <Image
+                  source={illustrations.passTickets}
+                  style={{ width: 72, height: 54, marginVertical: -8 }}
+                  accessible={false}
+                />
+              }
             />
           )}
           <View className="gap-0.5">

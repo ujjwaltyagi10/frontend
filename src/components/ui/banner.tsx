@@ -9,7 +9,7 @@ import { Text } from './text';
 const tones = {
   info: { box: 'bg-card border border-line', icon: icons.info, text: 'default' },
   warning: { box: 'bg-warning', icon: icons.warning, text: 'default' },
-  offer: { box: 'bg-primary', icon: icons.gift, text: 'onPrimary' },
+  offer: { box: 'bg-primary-deep', icon: icons.gift, text: 'onPrimary' },
 } as const;
 
 type Props = {

@@ -1,10 +1,11 @@
 import { Image } from 'expo-image';
 import { View } from 'react-native';
 
+import { serviceArtwork } from '@/components/illustrations';
 import { Icon, type IconName } from '@/components/ui';
 import { colors, radius as radii } from '@/theme';
 
-// One glyph per service, so a catalogue without photos still reads at a glance.
+// Last resort for a service with neither a CDN image nor bundled art: one glyph per service.
 const ICONS: Record<string, IconName> = {
   hourly: { ios: 'clock', android: 'schedule', web: 'schedule' },
   'festive-home-help': { ios: 'sparkles', android: 'auto_awesome', web: 'auto_awesome' },
@@ -21,8 +22,6 @@ const ICONS: Record<string, IconName> = {
 };
 const FALLBACK: IconName = { ios: 'house', android: 'home', web: 'home' };
 
-// Neutral grey panel like the reference catalogue — cyan stays an accent, not a background.
-
 type Props = {
   slug: string;
   imageUrl?: string | null;
@@ -33,17 +32,18 @@ type Props = {
   rounded?: keyof typeof radii | 'none';
 };
 
-/** A service's picture: the CDN image when there is one, otherwise a tinted tile with its icon. */
+/** A service's picture: the CDN image, else the bundled 3D art, else a grey tile with its icon. */
 export function ServiceArt({ slug, imageUrl, size, aspectRatio = 1, rounded = 'card' }: Props) {
   const box = {
     width: size ?? ('100%' as const),
     aspectRatio,
     borderRadius: rounded === 'none' ? 0 : radii[rounded],
   };
-  if (imageUrl) {
+  const source = imageUrl || serviceArtwork[slug];
+  if (source) {
     return (
       <Image
-        source={imageUrl}
+        source={source}
         style={{ ...box, backgroundColor: colors.surface.muted }}
         contentFit="cover"
         transition={150}

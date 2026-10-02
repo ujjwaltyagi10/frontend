@@ -41,3 +41,6 @@ example
 # generated native folders
 /ios
 /android
+
+# full-size illustration originals (2–6 MB each); only the resized copies are bundled
+assets/illustrations/source/

@@ -12,6 +12,7 @@ module.exports = {
       colors: {
         primary: colors.brand.primary,
         'primary-strong': colors.brand.primaryStrong,
+        'primary-deep': colors.brand.primaryDeep,
         'on-primary': colors.brand.onPrimary,
         'on-primary-muted': colors.brand.onPrimaryMuted,
         dark: colors.brand.dark,

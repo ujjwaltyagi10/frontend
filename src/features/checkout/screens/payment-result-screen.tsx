@@ -1,10 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { queryKeys, type Payment } from '@/api';
+import { illustrations } from '@/components/illustrations';
 import { Button, Card, Icon, icons, StateView, Text } from '@/components/ui';
 import { track } from '@/lib/analytics';
 import { formatDay, formatDuration, formatMoney, formatTime } from '@/lib/format';
@@ -84,7 +86,11 @@ function Succeeded({ payment }: { payment: Payment }) {
   const b = payment.booking;
   return (
     <>
-      <ResultIcon tone="success" />
+      <Image
+        source={illustrations.paymentSuccess}
+        style={{ width: 140, height: 140, alignSelf: 'center' }}
+        accessible={false}
+      />
       <Text variant="h1" className="text-center">
         {SUCCESS_TITLE[payment.purpose]}
       </Text>
@@ -171,9 +177,8 @@ function goToTab(href: '/' | '/bookings' | '/wallet') {
   router.navigate(href);
 }
 
-function ResultIcon({ tone }: { tone: 'success' | 'danger' | 'warning' }) {
+function ResultIcon({ tone }: { tone: 'danger' | 'warning' }) {
   const map = {
-    success: { icon: icons.check, bg: 'bg-success', color: colors.brand.onDark },
     danger: { icon: icons.close, bg: 'bg-danger', color: colors.brand.onDark },
     warning: { icon: icons.info, bg: 'bg-muted', color: colors.text.secondary },
   }[tone];

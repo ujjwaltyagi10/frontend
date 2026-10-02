@@ -8,6 +8,7 @@
 
 const palette = {
   cyan: '#26CCF0', // brand primary (2026-10-02)
+  cyanDeep: '#12B4DA', // cyan cards (Pass banner, profile header): a shade deeper than buttons
   cyanStrong: '#0891B2', // cyan for text/icons on white: #26CCF0 on white is ~1.9:1, too faint to read
   cyanTint: '#E8F9FE',
   white: '#FFFFFF',
@@ -33,6 +34,7 @@ const colors = {
     onPrimaryMuted: palette.zinc100,
     /** Cyan text, icons and borders on white or tint (selected tab label, links, active inputs). */
     primaryStrong: palette.cyanStrong,
+    primaryDeep: palette.cyanDeep,
     dark: palette.zinc900,
     onDark: palette.white,
     tint: palette.cyanTint,

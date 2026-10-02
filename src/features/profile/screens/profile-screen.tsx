@@ -175,7 +175,7 @@ function ProfileHeader({ user }: { user: User | null }) {
       accessibilityRole="button"
       accessibilityLabel={user ? `${name || 'Your profile'}. Edit profile` : 'Log in or sign up'}
       onPress={() => router.push(user ? '/profile/edit' : '/login-modal')}
-      className="flex-row items-center gap-4 rounded-hero bg-primary p-4 active:opacity-90">
+      className="flex-row items-center gap-4 rounded-hero bg-primary-deep p-4 active:opacity-90">
       <View className="h-14 w-14 items-center justify-center rounded-pill bg-card">
         {user ? (
           <Text variant="h3" tone="accent">

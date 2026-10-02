@@ -7,7 +7,14 @@ export const { palette, colors, fontSize, fontFamily, spacing, radius, shadows, 
     palette: Record<string, string>;
     colors: {
       brand: Record<
-        'primary' | 'onPrimary' | 'onPrimaryMuted' | 'primaryStrong' | 'dark' | 'onDark' | 'tint',
+        | 'primary'
+        | 'onPrimary'
+        | 'onPrimaryMuted'
+        | 'primaryStrong'
+        | 'primaryDeep'
+        | 'dark'
+        | 'onDark'
+        | 'tint',
         string
       >;
       surface: Record<'page' | 'card' | 'muted', string>;

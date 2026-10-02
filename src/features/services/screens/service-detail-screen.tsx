@@ -41,7 +41,7 @@ export function ServiceDetailScreen() {
   if (service.isPending)
     return (
       <Screen edges={[]}>
-        <Skeleton aspectRatio={16 / 9} rounded="hero" />
+        <Skeleton aspectRatio={1} rounded="hero" />
         <SkeletonText lines={6} />
       </Screen>
     );
@@ -102,7 +102,7 @@ function Detail({ service: s }: { service: ServiceDetail }) {
         }}
       />
 
-      <ServiceArt slug={s.slug} imageUrl={s.imageUrl} aspectRatio={16 / 9} rounded="hero" />
+      <ServiceArt slug={s.slug} imageUrl={s.imageUrl} rounded="hero" />
 
       <View className="gap-1.5">
         <View className="flex-row items-center gap-2">

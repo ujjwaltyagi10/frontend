@@ -1,6 +1,8 @@
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
 
+import { illustrations } from '@/components/illustrations';
 import { Card, EmptyState, Screen, SegmentedTabs, SkeletonText, StateView, Text } from '@/components/ui';
 import { formatDay, formatMoney, formatTime } from '@/lib/format';
 import { useSessionStore } from '@/stores';
@@ -24,6 +26,7 @@ export function BookingsScreen({ showTitle = true }: { showTitle?: boolean }) {
       <SegmentedTabs options={TABS} value={tab} onChange={setTab} />
       {isGuest ? (
         <EmptyState
+          illustration={<EmptyArt />}
           title="Log in to see your bookings"
           actionTitle="Log in"
           onAction={() => router.push('/login-modal')}
@@ -34,6 +37,7 @@ export function BookingsScreen({ showTitle = true }: { showTitle?: boolean }) {
         <StateView state="error" error={bookings.error} onRetry={bookings.refetch} />
       ) : bookings.data.items.length === 0 ? (
         <EmptyState
+          illustration={<EmptyArt />}
           title="No bookings found"
           actionTitle="Book a service"
           onAction={() => router.navigate('/')}
@@ -55,4 +59,10 @@ export function BookingsScreen({ showTitle = true }: { showTitle?: boolean }) {
 /** G2: the same list opened from Profile, where the stack header already says "My Bookings". */
 export function ProfileBookingsScreen() {
   return <BookingsScreen showTitle={false} />;
+}
+
+function EmptyArt() {
+  return (
+    <Image source={illustrations.emptyBookings} style={{ width: 140, height: 140 }} accessible={false} />
+  );
 }

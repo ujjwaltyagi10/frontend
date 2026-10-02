@@ -125,7 +125,7 @@ export function PassScreen() {
 function OfferHero({ offer: o }: { offer: PassOffer }) {
   const saving = o.mrpPaise !== null && o.mrpPaise > o.pricePaise ? o.mrpPaise - o.pricePaise : 0;
   return (
-    <View className="gap-5 rounded-hero bg-primary p-5">
+    <View className="gap-5 rounded-hero bg-primary-deep p-5">
       <View className="gap-2">
         <Badge label={`VALID ${o.validityDays} DAYS`} tone="light" />
         <Text variant="h1" tone="onPrimary">
@@ -171,7 +171,7 @@ function OfferHero({ offer: o }: { offer: PassOffer }) {
 function ActivePass({ pass }: { pass: Pass }) {
   const left = pass.visitsTotal - pass.visitsUsed;
   return (
-    <View className="gap-4 rounded-hero bg-primary p-5">
+    <View className="gap-4 rounded-hero bg-primary-deep p-5">
       <Badge label="ACTIVE" tone="success" />
       <Text variant="h1" tone="onPrimary">
         {left} of {pass.visitsTotal} visits left
