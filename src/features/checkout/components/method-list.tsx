@@ -1,9 +1,10 @@
 import { Pressable, View } from 'react-native';
 
-import { Badge, Icon, icons, ListGroup, Text, type IconName } from '@/components/ui';
+import { Icon, icons, ListGroup, Text, type IconName } from '@/components/ui';
+import { formatMoney } from '@/lib/format';
 import { colors } from '@/theme';
 
-import type { GatewayMethod, UpiApp } from '../gateway';
+import type { PayMethod, UpiApp } from '../gateway';
 
 const UPI_APPS: { app: UpiApp; name: string }[] = [
   { app: 'phonepe', name: 'PhonePe' },
@@ -13,15 +14,41 @@ const UPI_APPS: { app: UpiApp; name: string }[] = [
   { app: 'supermoney', name: 'super.money' },
 ];
 
-const same = (a: GatewayMethod | null, b: GatewayMethod) =>
+const same = (a: PayMethod | null, b: PayMethod) =>
   !!a && a.kind === b.kind && (a.kind !== 'upi_app' || (b.kind === 'upi_app' && a.app === b.app));
 
-type Props = { value: GatewayMethod | null; onChange: (m: GatewayMethod) => void };
+type Props = {
+  value: PayMethod | null;
+  onChange: (m: PayMethod) => void;
+  /** ChoreDash Money for this payment: null hides it (top-ups, Pass), undefined = balance loading. */
+  wallet?: { balancePaise: number | undefined; amountPaise: number } | null;
+};
 
 /** F4 payment methods (PY-2, PY-6): one selectable row per method, grouped by kind. */
-export function MethodList({ value, onChange }: Props) {
+export function MethodList({ value, onChange, wallet = null }: Props) {
+  const balance = wallet?.balancePaise;
+  const enough = wallet && balance !== undefined && balance >= wallet.amountPaise;
   return (
     <View className="gap-5">
+      {wallet && (
+        // First: one tap, no app switch (PY-6).
+        <ListGroup title="ChoreDash Money">
+          <MethodRow
+            label="Pay from wallet"
+            sub={
+              balance === undefined
+                ? 'Checking balance…'
+                : enough
+                  ? `Balance ${formatMoney(balance)}`
+                  : `Balance ${formatMoney(balance)} · not enough for this booking`
+            }
+            icon={icons.wallet}
+            disabled={!enough}
+            selected={same(value, { kind: 'wallet' })}
+            onPress={() => onChange({ kind: 'wallet' })}
+          />
+        </ListGroup>
+      )}
       {/* TODO(CD-046): list only installed apps (Linking.canOpenURL) once Razorpay is in. */}
       <ListGroup title="UPI">
         {UPI_APPS.map(({ app, name }) => (
@@ -49,16 +76,6 @@ export function MethodList({ value, onChange }: Props) {
           icon={{ ios: 'creditcard', android: 'credit_card', web: 'credit_card' }}
           selected={same(value, { kind: 'card' })}
           onPress={() => onChange({ kind: 'card' })}
-        />
-      </ListGroup>
-
-      <ListGroup title="ChoreDash Money">
-        {/* PY-6 Quick Checkout from the wallet: CD-055. */}
-        <MethodRow
-          label="Pay from wallet balance"
-          icon={icons.wallet}
-          disabled
-          trailing={<Badge label="Soon" tone="neutral" />}
         />
       </ListGroup>
     </View>

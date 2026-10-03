@@ -6,9 +6,29 @@ import type { Payment } from '@/api/types';
 
 import { db, newId, once } from '../db';
 import { MockHttpError, requireUser, route } from '../router';
-import { passOffer, passPurchased, topupPending, topupSettled } from './wallet';
+import {
+  passOffer,
+  passPurchased,
+  spendFromWallet,
+  summary,
+  topupPending,
+  topupSettled,
+  consumePassVisit,
+} from './wallet';
 
 const WEBHOOK_DELAY_MS = 3000;
+
+/** A booking became confirmed (gateway, wallet or ₹0): stamp it and use the Pass visit it was quoted with. */
+function confirmBooking(bookingId: string) {
+  const booking = db.bookings.get(bookingId);
+  if (!booking) return;
+  booking.status = 'confirmed';
+  booking.holdExpiresAt = null;
+  const meta = db.bookingMeta.get(bookingId);
+  if (!meta) return;
+  meta.confirmedAt = new Date().toISOString();
+  if (meta.quote.pass) consumePassVisit(meta.quote.pass.passId);
+}
 
 function view(id: string): Payment {
   const p = db.payments.get(id);
@@ -17,9 +37,8 @@ function view(id: string): Payment {
     p.status = p.outcome === 'success' ? 'succeeded' : 'failed';
     p.errorCode = p.outcome === 'success' ? null : 'PAYMENT_FAILED';
     const booking = p.bookingId ? db.bookings.get(p.bookingId) : undefined;
-    if (booking) booking.status = p.status === 'succeeded' ? 'confirmed' : 'payment_failed';
-    const meta = p.bookingId ? db.bookingMeta.get(p.bookingId) : undefined;
-    if (meta && p.status === 'succeeded') meta.confirmedAt = new Date().toISOString();
+    if (booking && p.status === 'succeeded') confirmBooking(booking.id);
+    else if (booking) booking.status = 'payment_failed';
     if (p.purpose === 'topup') topupSettled(p.id, p.status === 'succeeded');
     if (p.purpose === 'pass' && p.status === 'succeeded') passPurchased();
   }
@@ -59,6 +78,11 @@ route('POST', '/payments', (ctx) => {
       resolveAt: null,
       outcome: null,
     });
+    // Nothing to collect (a Pass or coupon covers the bill): confirmed now, no gateway step.
+    if (b.purpose === 'booking' && amountPaise === 0) {
+      db.payments.get(id)!.status = 'succeeded';
+      confirmBooking(b.bookingId);
+    }
     return view(id);
   });
 });
@@ -112,3 +136,22 @@ route('GET', '/offers', () => [
     description: 'Up to ₹50. Once per user per month.',
   },
 ]);
+
+/** PY-6 Quick Checkout: pay a held booking from ChoreDash Money. Debit + confirmation are one step. */
+route('POST', '/wallet/bookings/:id/pay', (ctx) => {
+  requireUser(ctx);
+  if (!ctx.headers['Idempotency-Key'])
+    throw new MockHttpError(422, 'VALIDATION_FAILED', 'Idempotency-Key required');
+  return once(ctx.headers['Idempotency-Key'], () => {
+    const booking = db.bookings.get(ctx.params.id);
+    if (!booking) throw new MockHttpError(404, 'NOT_FOUND');
+    if (booking.status !== 'pending_payment') throw new MockHttpError(409, 'CONFLICT');
+    if (!spendFromWallet(booking.totalPaise, `Booking · ${booking.serviceNames.join(', ')}`))
+      throw new MockHttpError(409, 'INSUFFICIENT_BALANCE');
+    confirmBooking(booking.id);
+    // The gateway intent opened with the payment screen can't complete any more.
+    for (const p of db.payments.values())
+      if (p.bookingId === booking.id && p.status === 'created') p.status = 'cancelled';
+    return { booking: { ...booking }, wallet: summary() };
+  });
+});

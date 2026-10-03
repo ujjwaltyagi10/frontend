@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import type { CartQuote } from '@/api';
 import { Card, Icon, icons, Text } from '@/components/ui';
-import { formatMoney } from '@/lib/format';
+import { formatDuration, formatMoney } from '@/lib/format';
 import { colors } from '@/theme';
 
 function Row({ label, value, tone }: { label: string; value: string; tone?: 'success' | 'muted' }) {
@@ -31,6 +31,13 @@ export function BillCard({ quote, isStale }: { quote: CartQuote; isStale: boolea
       {open && (
         <View className="gap-2">
           <Row label="Item total" value={formatMoney(quote.itemTotalPaise)} />
+          {quote.pass && (
+            <Row
+              label={`ChoreDash Pass · ${formatDuration(quote.pass.minutesCovered)}`}
+              value={`−${formatMoney(quote.pass.discountPaise)}`}
+              tone="success"
+            />
+          )}
           {quote.discountPaise > 0 && (
             <Row
               label={`Coupon ${quote.coupon?.code ?? ''}`}

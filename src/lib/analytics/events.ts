@@ -19,6 +19,7 @@ export type AnalyticsEvents = {
   payment_succeeded: { method: string; amount: number };
   payment_failed: { method: string; amount: number; error_code: string };
   booking_confirmed: { mode: BookingMode; amount: number };
+  booking_cancelled: { fee_percent: number; refund: number };
   recurring_plan_started: { days: number; amount: number };
   recurring_plan_stopped: Record<string, never>;
   wallet_topup_started: { amount: number; bonus: number };

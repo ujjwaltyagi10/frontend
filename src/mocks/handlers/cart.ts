@@ -11,6 +11,8 @@ import { serviceDetails } from '../fixtures/catalog';
 import { addresses } from '../fixtures/geo';
 import { isServed } from '../fixtures/serviceability';
 import { MockHttpError, route } from '../router';
+import { phoneFromToken } from './auth';
+import { activePass } from './wallet';
 
 const OPEN_HOUR = 7; // service hours are an open question (Q-07)
 const CLOSE_HOUR = 21;
@@ -55,15 +57,41 @@ function servedFor(input: CartInput): boolean {
   return !!input.location && isServed(input.location.lat);
 }
 
-function quote(input: CartInput): CartQuote {
+/**
+ * PS-3 default until Q-11 is answered: one Pass visit per booking, covering up to its 60 minutes —
+ * lines are covered in cart order (part of a line pro rata); anything longer is paid as usual.
+ * Not for recurring (those are paid from ChoreDash Money only) or guests.
+ */
+function applyPass(input: CartInput, lines: QuoteLine[], signedIn: boolean): CartQuote['pass'] {
+  const pass = signedIn && input.mode !== 'recurring' ? activePass() : null;
+  if (!pass || lines.length === 0) return null;
+  let left = pass.minutesPerVisit;
+  let discount = 0;
+  for (const l of lines) {
+    if (left <= 0) break;
+    const covered = Math.min(l.durationMin, left);
+    discount += Math.round((l.pricePaise * covered) / l.durationMin);
+    left -= covered;
+  }
+  return {
+    passId: pass.id,
+    minutesCovered: pass.minutesPerVisit - left,
+    discountPaise: discount,
+    visitsLeftAfter: pass.visitsTotal - pass.visitsUsed - 1,
+  };
+}
+
+function quote(input: CartInput, signedIn = false): CartQuote {
   const lines = input.items.map((i) => priceLine(i.serviceSlug, i.durationMin));
   const itemTotal = lines.reduce((sum, l) => sum + l.pricePaise, 0);
   const mrpTotal = lines.reduce((sum, l) => sum + Math.max(l.mrpPaise ?? l.pricePaise, l.pricePaise), 0);
 
   const code = input.couponCode?.trim().toUpperCase() || null;
+  const pass = applyPass(input, lines, signedIn);
+  const afterPass = itemTotal - (pass?.discountPaise ?? 0);
   const couponValid = code === 'FIRST50';
-  const discount = couponValid ? Math.min(5_000, itemTotal) : 0;
-  const taxable = itemTotal - discount;
+  const discount = couponValid ? Math.min(5_000, afterPass) : 0;
+  const taxable = afterPass - discount;
   const fees = Math.floor((taxable * FEE_BPS + 5_000) / 10_000);
 
   const totalMin = input.items.reduce((sum, i) => sum + i.durationMin, 0);
@@ -84,7 +112,8 @@ function quote(input: CartInput): CartQuote {
     discountPaise: discount,
     feesPaise: fees,
     totalPaise: taxable + fees,
-    savingsPaise: mrpTotal - itemTotal + discount,
+    savingsPaise: mrpTotal - itemTotal + discount + (pass?.discountPaise ?? 0),
+    pass,
     coupon: code
       ? { code, valid: couponValid, message: couponValid ? '₹50 off applied' : 'This coupon is not valid' }
       : null,
@@ -93,8 +122,8 @@ function quote(input: CartInput): CartQuote {
   };
 }
 
-route('PUT', '/cart', ({ body }) => {
-  const q = quote(body as CartInput);
+route('PUT', '/cart', ({ body, headers }) => {
+  const q = quote(body as CartInput, !!phoneFromToken(headers.Authorization));
   db.quotes.set(q.quoteId, { input: body as CartInput, quote: q });
   return q;
 });

@@ -11,7 +11,7 @@ import { db, newId, once } from '../db';
 import { addresses } from '../fixtures/geo';
 import { mapPart, persisted } from '../persist';
 import { MockHttpError, requireUser, route } from '../router';
-import { spendForVisit, walletTotal } from './wallet';
+import { spendFromWallet, walletTotal } from './wallet';
 
 const plans = new Map<string, RecurringPlan>();
 /** The quote each plan was made from — what every visit books. */
@@ -45,7 +45,7 @@ export function bookDueVisits(now = new Date()) {
       if (at - now.getTime() > 48 * HOUR) break;
       const names = plan.items.map((i) => i.name);
       // A visit already past is skipped, never booked after the fact.
-      if (at > now.getTime() && spendForVisit(plan.perVisitPaise, `Weekly plan · ${names.join(', ')}`)) {
+      if (at > now.getTime() && spendFromWallet(plan.perVisitPaise, `Weekly plan · ${names.join(', ')}`)) {
         const booking: Booking = {
           id: newId('bk'),
           mode: 'recurring',

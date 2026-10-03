@@ -28,6 +28,7 @@ import { BookingDetails } from '../components/booking-details';
 import { CartItemRow } from '../components/cart-item-row';
 import { CouponRow } from '../components/coupon-row';
 import { InstantUnavailableBanner } from '../components/instant-unavailable-banner';
+import { PassApplied } from '../components/pass-applied';
 import { useCartQuote } from '../hooks/use-cart-quote';
 import { useCreateBooking } from '../hooks/use-create-booking';
 import { useStartRecurringPlan } from '../hooks/use-start-recurring-plan';
@@ -210,6 +211,7 @@ export function CartScreen() {
         <SkeletonText lines={5} />
       ) : (
         <>
+          {quote.pass && <PassApplied pass={quote.pass} />}
           <CouponRow coupon={quote.coupon} />
           <BookingDetails />
           <BillCard quote={quote} isStale={isStale} />

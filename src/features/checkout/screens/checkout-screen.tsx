@@ -18,12 +18,15 @@ import {
   type IconName,
 } from '@/components/ui';
 import { track } from '@/lib/analytics';
+import { useWalletSummary } from '@/hooks';
 import { formatMoney } from '@/lib/format';
+import { useErrorMessage } from '@/lib/i18n';
 import { colors } from '@/theme';
 
 import { ConfirmingOverlay } from '../components/confirming-overlay';
 import { MethodList } from '../components/method-list';
-import { gateway, MockGatewaySheet, useTestGateway, type GatewayMethod } from '../gateway';
+import { gateway, MockGatewaySheet, useTestGateway, type PayMethod } from '../gateway';
+import { usePayFromWallet } from '../hooks/use-pay-from-wallet';
 import { usePaymentIntent, usePaymentStatus } from '../hooks/use-payment';
 
 type Params = { purpose?: string; bookingId?: string; amountPaise?: string; offerId?: string };
@@ -47,7 +50,11 @@ export function CheckoutScreen() {
 
   const intent = usePaymentIntent(target);
   const payment = intent.data;
-  const [method, setMethod] = useState<GatewayMethod | null>(null);
+  const [method, setMethod] = useState<PayMethod | null>(null);
+  const walletPay = usePayFromWallet();
+  const wallet = useWalletSummary();
+  const errorMessage = useErrorMessage();
+  const [paidFromWallet, setPaidFromWallet] = useState<string | null>(null);
   const [opening, setOpening] = useState(false);
   const [pollSince, setPollSince] = useState<number | null>(null);
   const [leaving, setLeaving] = useState(false);
@@ -65,7 +72,7 @@ export function CheckoutScreen() {
   // final at creation: a coupon covering the whole bill confirms a ₹0 booking with no gateway step.
   const settledOnCreate = payment?.status === 'succeeded';
   const done = settledOnCreate || (pollSince !== null && (status.isFinal || status.timedOut));
-  const exiting = leaving || done;
+  const exiting = leaving || done || paidFromWallet !== null;
 
   // F6: leaving before paying asks first; while confirming, Back does nothing.
   usePreventRemove(!exiting && !!payment, ({ data }) => {
@@ -78,6 +85,11 @@ export function CheckoutScreen() {
     if (done && payment) router.replace({ pathname: '/payment-result', params: { paymentId: payment.id } });
   }, [done, payment]);
 
+  useEffect(() => {
+    if (paidFromWallet)
+      router.replace({ pathname: '/payment-result', params: { walletBookingId: paidFromWallet } });
+  }, [paidFromWallet]);
+
   const exit = async () => {
     const proceed = exitSheet;
     setExitSheet(null);
@@ -88,6 +100,17 @@ export function CheckoutScreen() {
 
   const pay = async () => {
     if (!payment || !method) return;
+    if (method.kind === 'wallet') {
+      if (!payment.bookingId) return;
+      walletPay.mutate(payment.bookingId, {
+        onSuccess: ({ booking }) => setPaidFromWallet(booking.id),
+        onError: (e) => {
+          toast.error(errorMessage(e));
+          void wallet.refetch(); // the balance may have changed elsewhere
+        },
+      });
+      return;
+    }
     setOpening(true);
     try {
       const result = await gateway.open(payment, method);
@@ -120,7 +143,7 @@ export function CheckoutScreen() {
               size="lg"
               fullWidth
               disabled={!payment || !method}
-              loading={opening}
+              loading={opening || walletPay.isPending}
               onPress={pay}
             />
           </StickyFooter>
@@ -130,7 +153,15 @@ export function CheckoutScreen() {
         ) : (
           <>
             <PaySummary purpose={payment.purpose} amountPaise={payment.amountPaise} />
-            <MethodList value={method} onChange={setMethod} />
+            <MethodList
+              value={method}
+              onChange={setMethod}
+              wallet={
+                payment.purpose === 'booking'
+                  ? { balancePaise: wallet.data?.totalPaise, amountPaise: payment.amountPaise }
+                  : null
+              }
+            />
             <View className="flex-row items-center justify-center gap-2 px-4">
               <Icon
                 name={{ ios: 'lock.fill', android: 'lock', web: 'lock' }}

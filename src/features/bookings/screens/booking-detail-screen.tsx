@@ -1,12 +1,28 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { View } from 'react-native';
 
-import type { BookingDetail } from '@/api';
-import { Badge, Button, Card, Icon, icons, Screen, SkeletonText, StateView, Text } from '@/components/ui';
+import type { BookingCancellation, BookingDetail } from '@/api';
+import {
+  Badge,
+  Banner,
+  Button,
+  Card,
+  Icon,
+  icons,
+  Screen,
+  SkeletonText,
+  StateView,
+  Text,
+  toast,
+} from '@/components/ui';
 import { ARRIVAL_WINDOW_MIN } from '@/config/constants';
 import { formatDay, formatDuration, formatMoney, formatTime } from '@/lib/format';
+import { useErrorMessage } from '@/lib/i18n';
 import { colors } from '@/theme';
 
+import { CancelSheet } from '../components/cancel-sheet';
+import { useCancelBooking } from '../hooks/use-cancel-booking';
 import { STATUS } from '../logic/status';
 import { useBookingDetail } from '../hooks/use-booking-detail';
 
@@ -14,6 +30,12 @@ import { useBookingDetail } from '../hooks/use-booking-detail';
 export function BookingDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const booking = useBookingDetail(id);
+  const cancel = useCancelBooking();
+  const errorMessage = useErrorMessage();
+  const [confirm, setConfirm] = useState(false);
+  // When the screen opened; the 30 s refresh re-reads the server's cut-off anyway.
+  const [openedAt] = useState(Date.now);
+  const [cancelled, setCancelled] = useState<BookingCancellation | null>(null);
 
   if (booking.isPending)
     return (
@@ -82,12 +104,58 @@ export function BookingDetailScreen() {
         ))}
       </Card>
 
-      {/* Cancel and reschedule wait for the cancellation policy (Q-10, CD-061). */}
+      {cancelled && (
+        <Banner
+          tone="info"
+          title={`${formatMoney(cancelled.refundPaise)} added to ChoreDash Money`}
+          message={
+            cancelled.feePaise > 0
+              ? `Cancellation fee ${formatMoney(cancelled.feePaise)}.`
+              : 'Cancelled free of charge.'
+          }
+        />
+      )}
+
+      {b.rescheduleUntil && openedAt < Date.parse(b.rescheduleUntil) && (
+        <View className="gap-1">
+          <Button
+            title="Reschedule"
+            variant="secondary"
+            fullWidth
+            onPress={() => router.push({ pathname: '/reschedule', params: { id: b.id } })}
+          />
+          <Text variant="caption" tone="muted" className="text-center">
+            Free until {formatDay(b.rescheduleUntil)}, {formatTime(b.rescheduleUntil)}
+          </Text>
+        </View>
+      )}
+      {b.cancellationFeePaise != null && (
+        <Button title="Cancel booking" variant="destructive" fullWidth onPress={() => setConfirm(true)} />
+      )}
       <Button
         title="Need help with this booking?"
         variant="secondary"
         fullWidth
         onPress={() => router.push('/support')}
+      />
+      <CancelSheet
+        booking={b}
+        visible={confirm}
+        onClose={() => setConfirm(false)}
+        loading={cancel.isPending}
+        onConfirm={() =>
+          cancel.mutate(b.id, {
+            onSuccess: (r) => {
+              setConfirm(false);
+              setCancelled(r);
+            },
+            onError: (e) => {
+              setConfirm(false);
+              toast.error(errorMessage(e));
+              void booking.refetch();
+            },
+          })
+        }
       />
     </Screen>
   );

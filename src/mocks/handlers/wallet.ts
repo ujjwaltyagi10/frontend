@@ -37,7 +37,7 @@ export const walletTotal = () => wallet.cash + wallet.promo;
 export const bonusFor = (amount: number) =>
   amount >= RULES.bonus.minPaise ? Math.round((amount * RULES.bonus.bps) / 10_000) : 0;
 
-function summary(): WalletSummary {
+export function summary(): WalletSummary {
   return {
     cashBalancePaise: wallet.cash,
     promoBalancePaise: wallet.promo,
@@ -54,10 +54,10 @@ function addTx(t: Omit<WalletTransaction, 'id' | 'createdAt'> & { paymentId?: st
 }
 
 /**
- * Pays one weekly-plan visit from the wallet: rewards first (they expire sooner), then cash.
- * Returns false (and changes nothing) when the balance can't cover it — the visit is skipped.
+ * Pays from the wallet: rewards first (they expire sooner), then cash. Used for Quick Checkout and
+ * weekly-plan visits. Returns false (and changes nothing) when the balance can't cover it.
  */
-export function spendForVisit(amount: number, title: string): boolean {
+export function spendFromWallet(amount: number, title: string): boolean {
   if (wallet.cash + wallet.promo < amount) return false;
   const fromPromo = Math.min(wallet.promo, amount);
   const fromCash = amount - fromPromo;
@@ -109,6 +109,21 @@ export function topupPending(paymentId: string, amount: number) {
 }
 
 /** Gateway webhook settled the top-up. */
+/** A cancelled booking's refundable remainder, credited to cash (like the backend's RefundBooking). */
+export function refundToWallet(amount: number, title: string) {
+  if (amount <= 0) return;
+  wallet.cash += amount;
+  addTx({
+    direction: 'credit',
+    bucket: 'cash',
+    kind: 'refund',
+    title,
+    amountPaise: amount,
+    status: 'success',
+    expiresAt: null,
+  });
+}
+
 export function topupSettled(paymentId: string, succeeded: boolean) {
   for (const t of wallet.tx.filter((x) => x.paymentId === paymentId && x.status === 'pending')) {
     t.status = succeeded ? 'success' : 'failed';
@@ -161,6 +176,20 @@ persisted('pass', {
   load: (v) => (myPass = v as Pass | null),
   reset: () => (myPass = null),
 });
+
+/** The active Pass with visits left, or null. */
+export function activePass(): Pass | null {
+  if (!myPass || myPass.status !== 'active') return null;
+  if (Date.parse(myPass.expiresAt) < Date.now()) return null;
+  return myPass.visitsUsed < myPass.visitsTotal ? myPass : null;
+}
+
+/** A booking that used the Pass was confirmed: one visit gone. */
+export function consumePassVisit(passId: string) {
+  if (!myPass || myPass.id !== passId) return;
+  myPass.visitsUsed = Math.min(myPass.visitsTotal, myPass.visitsUsed + 1);
+  if (myPass.visitsUsed >= myPass.visitsTotal) myPass.status = 'exhausted';
+}
 
 export function passPurchased() {
   myPass = {

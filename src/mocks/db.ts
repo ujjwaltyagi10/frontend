@@ -12,7 +12,10 @@ export const db = {
     Payment & { resolveAt: number | null; outcome: 'success' | 'failure' | 'never' | null }
   >(),
   /** Extra booking facts the detail screen needs: the quote it was made from and status times. */
-  bookingMeta: new Map<string, { quote: CartQuote; createdAt: string; confirmedAt: string | null }>(),
+  bookingMeta: new Map<
+    string,
+    { quote: CartQuote; createdAt: string; confirmedAt: string | null; cancelledAt?: string }
+  >(),
   /** The signed-in mock customer (set on OTP verify). */
   me: null as Me | null,
   /** Idempotency-Key → first response, like the real backend's replay. */

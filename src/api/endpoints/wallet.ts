@@ -2,6 +2,7 @@ import { request } from '../client';
 import type {
   CursorPage,
   GiftCardRedeemResponse,
+  WalletBookingPayment,
   Pass,
   PassOffer,
   WalletSummary,
@@ -15,6 +16,13 @@ export const walletApi = {
       method: 'GET',
       path: '/wallet/transactions',
       query: { cursor },
+    }),
+  /** Pays a held booking from ChoreDash Money (rewards first, then cash). INSUFFICIENT_BALANCE if short. */
+  payBooking: (bookingId: string, idempotencyKey: string) =>
+    request<WalletBookingPayment>({
+      method: 'POST',
+      path: `/wallet/bookings/${bookingId}/pay`,
+      idempotencyKey,
     }),
   redeemGiftCard: (code: string, idempotencyKey: string) =>
     request<GiftCardRedeemResponse>({

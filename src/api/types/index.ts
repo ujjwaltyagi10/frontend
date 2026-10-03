@@ -193,6 +193,12 @@ export type CartQuote = {
   totalPaise: Paise;
   savingsPaise: Paise;
   coupon: { code: string; valid: boolean; message: string | null } | null;
+  /**
+   * ChoreDash Pass applied automatically (PS-3): one visit covers up to `minutesCovered` of this
+   * booking. `discountPaise` is separate from the coupon's `discountPaise`. Never on recurring.
+   * Optional until the backend sends it.
+   */
+  pass?: { passId: Uuid; minutesCovered: number; discountPaise: Paise; visitsLeftAfter: number } | null;
   instant: InstantAvailability;
   serviceable: boolean;
 };
@@ -275,6 +281,9 @@ export type WalletTransaction = {
 
 export type GiftCardRedeemResponse = { creditedPaise: Paise; wallet: WalletSummary };
 
+/** POST /wallet/bookings/{id}/pay (PY-6 Quick Checkout): the confirmed booking and the new balance. */
+export type WalletBookingPayment = { booking: BookingSummary; wallet: WalletSummary };
+
 // ---- ChoreDash Pass -------------------------------------------------------------
 
 export type PassOffer = {
@@ -322,6 +331,22 @@ export type BookingDetail = BookingSummary & {
   /** Assigned professional once dispatch exists (CD-070); never their location. */
   partner: null;
   arrivalEstimate: IsoDateTime | null;
+  /** Cancellation tier right now: 0 (> 6 h before), 50 (3–6 h), 100 (< 3 h or assigned; fee capped at ₹500). */
+  cancellationFeePercent?: 0 | 50 | 100;
+  /** What cancelling now costs and returns to ChoreDash Money; null when it can't be cancelled. */
+  cancellationFeePaise?: Paise | null;
+  cancellationRefundPaise?: Paise | null;
+  /** Last moment it can be moved to another slot (90 min before); null for instant or once too late. */
+  rescheduleUntil?: IsoDateTime | null;
+};
+
+/** POST /bookings/{id}/cancel — the fee kept and the refund credited to ChoreDash Money. */
+export type BookingCancellation = {
+  booking: BookingSummary;
+  cancellationFeePercent: 0 | 50 | 100;
+  feePaise: Paise;
+  refundPaise: Paise;
+  refundTo: 'wallet';
 };
 
 // ---- Referral (H5–H6, CD-066) ---------------------------------------------------

@@ -1,11 +1,11 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { queryKeys, type Payment } from '@/api';
+import { api, queryKeys, type Payment } from '@/api';
 import { illustrations } from '@/components/illustrations';
 import { Button, Card, Icon, icons, StateView, Text } from '@/components/ui';
 import { track } from '@/lib/analytics';
@@ -18,7 +18,35 @@ import { usePaymentStatus } from '../hooks/use-payment';
 
 /** Payment result (CD-048, design pending): success with booking summary, failure, or still pending. */
 export function PaymentResultScreen() {
-  const { paymentId } = useLocalSearchParams<{ paymentId: string }>();
+  const { paymentId, walletBookingId } = useLocalSearchParams<{
+    paymentId?: string;
+    walletBookingId?: string;
+  }>();
+  // Paid from ChoreDash Money: already confirmed, nothing to poll (PY-6).
+  if (walletBookingId) return <WalletPaidResult bookingId={walletBookingId} />;
+  return <GatewayResult paymentId={paymentId} />;
+}
+
+function WalletPaidResult({ bookingId }: { bookingId: string }) {
+  const booking = useQuery({
+    queryKey: queryKeys.bookings.detail(bookingId),
+    queryFn: () => api.bookings.detail(bookingId),
+  });
+  if (booking.isPending) return <StateView state="loading" />;
+  if (booking.isError) return <StateView state="error" error={booking.error} onRetry={booking.refetch} />;
+  return (
+    <SafeAreaView className="flex-1 bg-page" testID="PaymentResult">
+      <View className="flex-1 justify-center gap-5 p-4">
+        <Succeeded
+          payment={{ purpose: 'booking', amountPaise: booking.data.totalPaise, booking: booking.data }}
+          paidWith="ChoreDash Money"
+        />
+      </View>
+    </SafeAreaView>
+  );
+}
+
+function GatewayResult({ paymentId }: { paymentId: string | undefined }) {
   // Keep polling here too: a "pending" payment can still resolve while the user waits.
   const [pollSince] = useState(Date.now);
   const status = usePaymentStatus(paymentId, pollSince);
@@ -58,6 +86,7 @@ function useOnSucceeded(payment: Payment | undefined) {
       if (payment.purpose === 'booking') {
         clearCart();
         void qc.invalidateQueries({ queryKey: queryKeys.bookings.all });
+        void qc.invalidateQueries({ queryKey: queryKeys.pass.all }); // a Pass visit may have been used
         if (payment.booking)
           track('booking_confirmed', { mode: payment.booking.mode, amount: payment.amountPaise });
       }
@@ -82,7 +111,13 @@ function useOnSucceeded(payment: Payment | undefined) {
 
 const SUCCESS_TITLE = { booking: 'Booking confirmed', topup: 'Money added', pass: 'Pass activated' } as const;
 
-function Succeeded({ payment }: { payment: Payment }) {
+function Succeeded({
+  payment,
+  paidWith,
+}: {
+  payment: Pick<Payment, 'purpose' | 'amountPaise' | 'booking'>;
+  paidWith?: string;
+}) {
   const b = payment.booking;
   return (
     <>
@@ -100,7 +135,10 @@ function Succeeded({ payment }: { payment: Payment }) {
           <Text tone="muted">
             {formatDay(b.slotStart)}, {formatTime(b.slotStart)} · {formatDuration(b.durationMin)}
           </Text>
-          <Text weight="semibold">Paid {formatMoney(payment.amountPaise)}</Text>
+          <Text weight="semibold">
+            Paid {formatMoney(payment.amountPaise)}
+            {paidWith ? ` from ${paidWith}` : ''}
+          </Text>
           <Text variant="caption" tone="muted">
             We&apos;ll share your professional&apos;s details before the visit.
           </Text>

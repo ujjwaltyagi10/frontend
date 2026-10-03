@@ -8,4 +8,4 @@ import type { PaymentGateway } from './types';
 export const useTestGateway = env.useMocks || env.appEnv === 'development';
 export const gateway: PaymentGateway = useTestGateway ? mockGateway : razorpayGateway;
 export { MockGatewaySheet } from './mock-gateway';
-export type { GatewayMethod, GatewayResult, UpiApp } from './types';
+export type { GatewayMethod, GatewayResult, PayMethod, UpiApp } from './types';

@@ -34,6 +34,7 @@ export default function MainLayout() {
       <Stack.Screen name="gift-card" options={{ title: 'Claim a gift card' }} />
       <Stack.Screen name="transactions" options={{ title: 'Transaction history' }} />
       <Stack.Screen name="bookings/[id]" options={{ title: 'Booking' }} />
+      <Stack.Screen name="reschedule" options={{ title: 'Reschedule', presentation: 'modal' }} />
       <Stack.Screen name="support" options={{ title: 'Help & support' }} />
       <Stack.Screen name="referral" options={{ title: 'Refer & earn' }} />
       <Stack.Screen name="change-location" options={{ title: 'Change location', presentation: 'modal' }} />
