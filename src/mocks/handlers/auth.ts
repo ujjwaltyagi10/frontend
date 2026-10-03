@@ -31,14 +31,19 @@ route('POST', '/auth/otp/send', ({ body }) => {
   return { resendAfterSec: 45 };
 });
 
+/** Every number that has signed up — "new" means first time here, like the backend's users table. */
+export const knownPhones = new Set<string>();
+persisted('knownPhones', setPart(knownPhones));
+
 route('POST', '/auth/otp/verify', ({ body }) => {
   if (wrongAttempts >= 5) throw new MockHttpError(429, 'OTP_LOCKED');
   if (body?.otp !== MOCK_OTP) {
     wrongAttempts += 1;
     throw new MockHttpError(400, 'OTP_INVALID');
   }
-  const isNewUser = db.me?.phone !== body.phone;
-  if (isNewUser) {
+  const isNewUser = !knownPhones.has(body.phone);
+  knownPhones.add(body.phone);
+  if (db.me?.phone !== body.phone) {
     db.me = {
       id: `u_${body.phone}`,
       phone: body.phone,

@@ -14,8 +14,11 @@ type Status = 'loading' | 'signedOut' | 'guest' | 'authenticated';
 type SessionState = {
   status: Status;
   user: User | null;
+  /** A brand-new account just signed in: offer "Have a referral code?" once before moving on. */
+  offerReferral: boolean;
+  setOfferReferral: (offer: boolean) => void;
   hydrate: () => Promise<void>;
-  signIn: (tokens: AuthTokens, user: User) => Promise<void>;
+  signIn: (tokens: AuthTokens, user: User, opts?: { isNewUser?: boolean }) => Promise<void>;
   continueAsGuest: (tokens: AuthTokens) => Promise<void>;
   /** After a profile edit: keep the cached user in step with the server. */
   setUser: (user: User) => Promise<void>;
@@ -27,6 +30,8 @@ const USER_KEY = 'auth.user';
 export const useSessionStore = create<SessionState>()((set) => ({
   status: 'loading',
   user: null,
+  offerReferral: false,
+  setOfferReferral: (offerReferral) => set({ offerReferral }),
 
   hydrate: async () => {
     const [tokens, rawUser] = await Promise.all([tokenStorage.get(), secureStorage.get(USER_KEY)]);
@@ -35,9 +40,10 @@ export const useSessionStore = create<SessionState>()((set) => ({
     set({ status: user ? 'authenticated' : 'guest', user });
   },
 
-  signIn: async (tokens, user) => {
+  signIn: async (tokens, user, opts) => {
     await Promise.all([tokenStorage.set(tokens), secureStorage.set(USER_KEY, JSON.stringify(user))]);
-    set({ status: 'authenticated', user });
+    // Set together, so no screen ever sees "signed in" without knowing whether to ask first.
+    set({ status: 'authenticated', user, offerReferral: !!opts?.isNewUser });
   },
 
   continueAsGuest: async (tokens) => {
@@ -58,7 +64,7 @@ export const useSessionStore = create<SessionState>()((set) => ({
     queryClient.clear();
     useCartDraftStore.getState().clear();
     useLocationStore.getState().clear();
-    set({ status: 'signedOut', user: null });
+    set({ status: 'signedOut', user: null, offerReferral: false });
   },
 }));
 

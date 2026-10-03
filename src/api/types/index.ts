@@ -351,6 +351,9 @@ export type BookingCancellation = {
 
 // ---- Referral (H5–H6, CD-066) ---------------------------------------------------
 
+/** POST /referral/redeem — a new user's friend code: ₹50 credited to ChoreDash Money as rewards. */
+export type ReferralRedeemResponse = { creditedPaise: Paise; wallet: WalletSummary };
+
 export type ReferralTier = {
   id: string;
   /** Champ / Star / Legend */

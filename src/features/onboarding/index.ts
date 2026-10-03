@@ -4,3 +4,4 @@ export { LocationSearchScreen } from './screens/location-search-screen';
 export { LoginModalScreen } from './screens/login-modal-screen';
 export { LoginScreen } from './screens/login-screen';
 export { OtpScreen } from './screens/otp-screen';
+export { ReferralCodeScreen } from './screens/referral-code-screen';

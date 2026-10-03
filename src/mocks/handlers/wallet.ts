@@ -109,6 +109,20 @@ export function topupPending(paymentId: string, amount: number) {
 }
 
 /** Gateway webhook settled the top-up. */
+/** A friend's referral code at signup: ₹50 as rewards (promo, expires like top-up bonuses). */
+export function creditReferralReward(amount: number) {
+  wallet.promo += amount;
+  addTx({
+    direction: 'credit',
+    bucket: 'promo',
+    kind: 'bonus',
+    title: 'Referral reward',
+    amountPaise: amount,
+    status: 'success',
+    expiresAt: new Date(Date.now() + 15 * DAY).toISOString(), // rewards expire in 15 days
+  });
+}
+
 /** A cancelled booking's refundable remainder, credited to cash (like the backend's RefundBooking). */
 export function refundToWallet(amount: number, title: string) {
   if (amount <= 0) return;

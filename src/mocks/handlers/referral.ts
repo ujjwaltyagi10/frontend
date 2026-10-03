@@ -3,7 +3,10 @@
 // after the friend's first completed, paid booking. Fixture: 2 completed, 1 pending.
 import type { ReferralSummary, ReferralTier } from '@/api/types';
 
-import { requireUser, route } from '../router';
+import { once } from '../db';
+import { persisted, setPart } from '../persist';
+import { MockHttpError, requireUser, route } from '../router';
+import { creditReferralReward, summary } from './wallet';
 import { me as currentUser } from './profile';
 
 const TIERS: ReferralTier[] = [
@@ -42,4 +45,34 @@ route('GET', '/referral', (ctx) => {
     currentTierId: tier?.id ?? null,
   };
   return summary;
+});
+
+/** Phones that already redeemed a friend's code — once per account. */
+const redeemedBy = new Set<string>();
+persisted('referralRedeemed', setPart(redeemedBy));
+
+const FRIEND_REWARD = 5_000;
+
+/**
+ * A new user enters a friend's code right after signup: ₹50 into ChoreDash Money (rewards).
+ * The mock has one user at a time, so any well-formed code (letters + 3 digits) that isn't
+ * your own counts as a real friend's; the backend checks it against real accounts.
+ */
+route('POST', '/referral/redeem', (ctx) => {
+  requireUser(ctx);
+  return once(ctx.headers['Idempotency-Key'], () => {
+    const me = currentUser(ctx);
+    const code = String(ctx.body?.code ?? '')
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, '');
+    if (!/^[A-Z]{1,6}\d{3}$/.test(code) || code === referralCodeFor(me))
+      throw new MockHttpError(409, 'REFERRAL_INVALID');
+    // The mock's bookings aren't kept per user, so "new account" = this number never redeemed
+    // before (the backend also refuses accounts that already completed a booking).
+    if (redeemedBy.has(me.phone)) throw new MockHttpError(409, 'REFERRAL_NOT_ELIGIBLE');
+    redeemedBy.add(me.phone);
+    creditReferralReward(FRIEND_REWARD);
+    return { creditedPaise: FRIEND_REWARD, wallet: summary() };
+  });
 });

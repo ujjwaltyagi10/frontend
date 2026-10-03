@@ -23,5 +23,16 @@
     "resendIn": "Resend SMS in {{seconds}}s",
     "resend": "Resend SMS",
     "mockHint": "Mock mode: use OTP 123456"
+  },
+  "referral": {
+    "title": "Have a referral code?",
+    "subtitle": "Enter your friend's code and get ₹50 in ChoreDash Money.",
+    "label": "Referral code",
+    "placeholder": "e.g. PRIYA123",
+    "apply": "Apply code",
+    "skip": "Skip",
+    "added": "{{amount}} added to ChoreDash Money",
+    "addedSub": "Use it on your first booking.",
+    "continue": "Continue"
   }
 }

@@ -15,7 +15,8 @@ export function useVerifyOtp() {
   const signIn = useSessionStore((s) => s.signIn);
   return useMutation({
     mutationFn: api.auth.verifyOtp,
-    onSuccess: ({ accessToken, refreshToken, user }) => signIn({ accessToken, refreshToken }, user),
+    onSuccess: ({ accessToken, refreshToken, user, isNewUser }) =>
+      signIn({ accessToken, refreshToken }, user, { isNewUser }),
   });
 }
 

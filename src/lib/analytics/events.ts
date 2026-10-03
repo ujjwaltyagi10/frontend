@@ -26,5 +26,6 @@ export type AnalyticsEvents = {
   pass_viewed: Record<string, never>;
   pass_purchased: Record<string, never>;
   referral_shared: { channel: string };
+  referral_redeemed: { amount: number };
   support_opened: { from_screen: string };
 };

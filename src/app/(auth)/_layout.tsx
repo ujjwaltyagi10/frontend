@@ -6,13 +6,18 @@ import { useSessionStore } from '@/stores';
 export default function AuthLayout() {
   const status = useSessionStore((s) => s.status);
   const signedIn = status === 'guest' || status === 'authenticated';
+  const offerReferral = useSessionStore((s) => s.offerReferral);
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="login" />
         <Stack.Screen name="otp" />
       </Stack.Protected>
-      <Stack.Protected guard={signedIn}>
+      {/* New accounts: "Have a referral code?" once, before fetching the location. */}
+      <Stack.Protected guard={signedIn && offerReferral}>
+        <Stack.Screen name="referral-code" options={{ animation: 'fade' }} />
+      </Stack.Protected>
+      <Stack.Protected guard={signedIn && !offerReferral}>
         <Stack.Screen name="fetch-location" options={{ animation: 'fade' }} />
       </Stack.Protected>
     </Stack>

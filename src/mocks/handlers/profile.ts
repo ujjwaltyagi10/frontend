@@ -2,7 +2,7 @@
 // "" clears a field, phone read-only; deletion needs the OTP and no open bookings.
 import { db } from '../db';
 import { MockHttpError, requireUser, route, type MockContext } from '../router';
-import { deletedPhones, MOCK_OTP, phoneFromToken } from './auth';
+import { deletedPhones, knownPhones, MOCK_OTP, phoneFromToken } from './auth';
 import { addresses } from '../fixtures/geo';
 
 const OPEN = ['pending_payment', 'confirmed', 'assigned', 'in_progress'];
@@ -56,6 +56,7 @@ route('DELETE', '/me', (ctx) => {
   if (!/^\d{6}$/.test(ctx.body?.otp ?? '')) throw new MockHttpError(422, 'VALIDATION_FAILED');
   if (ctx.body.otp !== MOCK_OTP) throw new MockHttpError(400, 'OTP_INVALID');
   deletedPhones.add(me(ctx).phone);
+  knownPhones.delete(me(ctx).phone); // the same number can sign up again as a new account
   db.me = null;
   addresses.splice(0, addresses.length);
   return null;

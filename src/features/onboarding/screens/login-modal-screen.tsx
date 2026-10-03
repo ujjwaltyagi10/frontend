@@ -3,10 +3,12 @@ import { useState } from 'react';
 
 import { Button, Text } from '@/components/ui';
 import { useTranslation } from '@/lib/i18n';
+import { useSessionStore } from '@/stores';
 
 import { LoginLayout } from '../components/login-layout';
 import { OtpStep } from '../components/otp-step';
 import { PhoneStep } from '../components/phone-step';
+import { ReferralCodeStep } from '../components/referral-code-step';
 
 const close = () => {
   if (router.canGoBack()) router.back();
@@ -19,6 +21,25 @@ const close = () => {
 export function LoginModalScreen() {
   const { t } = useTranslation('onboarding');
   const [phone, setPhone] = useState<string | null>(null);
+  const offerReferral = useSessionStore((s) => s.offerReferral);
+  const setOfferReferral = useSessionStore((s) => s.setOfferReferral);
+  const status = useSessionStore((s) => s.status);
+  // A brand-new account: offer the friend's code once, then close as usual.
+  const finishReferral = () => {
+    setOfferReferral(false);
+    close();
+  };
+
+  if (status === 'authenticated' && offerReferral)
+    return (
+      <LoginLayout
+        testID="A9-modal"
+        collage={false}
+        legal={false}
+        corner={{ label: 'Skip', onPress: finishReferral }}>
+        <ReferralCodeStep onDone={finishReferral} />
+      </LoginLayout>
+    );
 
   return (
     <LoginLayout
@@ -38,7 +59,12 @@ export function LoginModalScreen() {
         </>
       ) : (
         <>
-          <OtpStep phone={phone} onVerified={close} />
+          <OtpStep
+            phone={phone}
+            onVerified={() => {
+              if (!useSessionStore.getState().offerReferral) close();
+            }}
+          />
           <Button
             variant="link"
             className="self-center"
