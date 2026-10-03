@@ -53,6 +53,7 @@ export function bookDueVisits(now = new Date()) {
           slotStart: plan.nextVisitAt,
           durationMin: plan.items.reduce((sum, i) => sum + i.durationMin, 0),
           serviceNames: names,
+          serviceSlugs: plan.items.map((i) => i.serviceSlug),
           addressLine: plan.addressLine,
           totalPaise: plan.perVisitPaise,
           holdExpiresAt: null,

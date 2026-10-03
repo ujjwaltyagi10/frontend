@@ -13,7 +13,7 @@ const OPEN = ['pending_payment', 'confirmed', 'assigned', 'in_progress'];
  * tokens carried it) can't be recovered, so answer like a real server would for a vanished
  * account — 401 — and the app logs out cleanly.
  */
-function me(ctx: MockContext) {
+export function me(ctx: MockContext) {
   if (!db.me) {
     const phone = phoneFromToken(ctx.headers.Authorization);
     if (!phone || deletedPhones.has(phone)) throw new MockHttpError(401, 'UNAUTHORIZED');

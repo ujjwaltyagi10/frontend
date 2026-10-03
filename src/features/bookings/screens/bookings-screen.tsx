@@ -3,21 +3,12 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 
 import { illustrations } from '@/components/illustrations';
-import {
-  Badge,
-  Card,
-  EmptyState,
-  Screen,
-  SegmentedTabs,
-  SkeletonText,
-  StateView,
-  Text,
-} from '@/components/ui';
-import { formatDay, formatMoney, formatTime } from '@/lib/format';
+import { EmptyState, Screen, SegmentedTabs, SkeletonText, StateView, Text } from '@/components/ui';
 import { useRecurringPlans } from '@/hooks';
 import { useTranslation } from '@/lib/i18n';
 import { useSessionStore } from '@/stores';
 
+import { BookingCard } from '../components/booking-card';
 import { PlanCard } from '../components/plan-card';
 import { useBookings } from '../hooks/use-bookings';
 
@@ -78,15 +69,7 @@ export function BookingsScreen({ showTitle = true }: { showTitle?: boolean }) {
         <>
           {plans.length > 0 && <Text variant="h3">{t('bookingsTitle')}</Text>}
           {bookings.data.items.map((b) => (
-            <Card
-              key={b.id}
-              onPress={() => router.push({ pathname: '/bookings/[id]', params: { id: b.id } })}>
-              {b.mode === 'recurring' && <Badge label={t('planBadge')} />}
-              <Text weight="semibold">{b.serviceNames.join(', ')}</Text>
-              <Text variant="caption" tone="muted">
-                {formatDay(b.slotStart)} · {formatTime(b.slotStart)} · {formatMoney(b.totalPaise)}
-              </Text>
-            </Card>
+            <BookingCard key={b.id} booking={b} />
           ))}
         </>
       )}

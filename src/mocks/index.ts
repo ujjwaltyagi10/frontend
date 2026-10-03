@@ -9,6 +9,7 @@ import './handlers/geo';
 import './handlers/payments';
 import './handlers/profile';
 import './handlers/recurring';
+import './handlers/referral';
 import './handlers/wallet';
 
 import { createMockTransport } from './router';

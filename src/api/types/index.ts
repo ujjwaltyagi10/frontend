@@ -115,6 +115,8 @@ export type BookingSummary = {
   slotStart: IsoDateTime;
   durationMin: number;
   serviceNames: string[];
+  /** Same order as serviceNames; picks the card picture. Optional until the backend sends it. */
+  serviceSlugs?: string[];
   addressLine: string;
   totalPaise: Paise;
 };
@@ -320,4 +322,34 @@ export type BookingDetail = BookingSummary & {
   /** Assigned professional once dispatch exists (CD-070); never their location. */
   partner: null;
   arrivalEstimate: IsoDateTime | null;
+};
+
+// ---- Referral (H5–H6, CD-066) ---------------------------------------------------
+
+export type ReferralTier = {
+  id: string;
+  /** Champ / Star / Legend */
+  name: string;
+  minReferrals: number;
+  /** null = no upper bound */
+  maxReferrals: number | null;
+  /** What the referrer earns per completed referral at this tier. */
+  rewardPaise: Paise;
+};
+
+/**
+ * GET /referral. The friend gets `friendDiscountPaise` off their first order; the referrer is
+ * rewarded only after that friend's first completed, paid booking. Counts, tier and earnings
+ * are the server's — the app never works them out.
+ */
+export type ReferralSummary = {
+  code: string;
+  shareUrl: string;
+  friendDiscountPaise: Paise;
+  completedCount: number;
+  /** Friends who signed up with the code but haven't completed a paid booking yet. */
+  pendingCount: number;
+  earnedPaise: Paise;
+  tiers: ReferralTier[];
+  currentTierId: string | null;
 };

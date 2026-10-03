@@ -13,6 +13,12 @@ route('GET', '/bookings', (ctx) => {
   const wanted = ctx.query?.status === 'past' ? PAST : UPCOMING;
   const items = [...db.bookings.values()]
     .filter((b) => wanted.includes(b.status))
+    // Bookings saved before slugs were stored: take them from the quote they were made from.
+    .map((b) =>
+      b.serviceSlugs
+        ? b
+        : { ...b, serviceSlugs: db.bookingMeta.get(b.id)?.quote.lines.map((l) => l.serviceSlug) },
+    )
     .sort((a, b) => a.slotStart.localeCompare(b.slotStart));
   return { items, nextCursor: null };
 });
@@ -37,6 +43,7 @@ route('POST', '/bookings', (ctx) => {
       slotStart: input.slotStart ?? new Date(now + 30 * 60_000).toISOString(),
       durationMin: input.items.reduce((s, i) => s + i.durationMin, 0),
       serviceNames: quote.lines.map((l) => l.name),
+      serviceSlugs: quote.lines.map((l) => l.serviceSlug),
       addressLine: 'Saved address',
       totalPaise: quote.totalPaise,
       holdExpiresAt: new Date(now + 10 * 60_000).toISOString(),

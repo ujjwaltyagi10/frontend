@@ -1,27 +1,14 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
 
-import type { BookingDetail, BookingStatus } from '@/api';
+import type { BookingDetail } from '@/api';
 import { Badge, Button, Card, Icon, icons, Screen, SkeletonText, StateView, Text } from '@/components/ui';
 import { ARRIVAL_WINDOW_MIN } from '@/config/constants';
 import { formatDay, formatDuration, formatMoney, formatTime } from '@/lib/format';
 import { colors } from '@/theme';
 
+import { STATUS } from '../logic/status';
 import { useBookingDetail } from '../hooks/use-booking-detail';
-
-const STATUS: Record<
-  BookingStatus,
-  { label: string; tone: 'primary' | 'success' | 'neutral' | 'danger' | 'dark' }
-> = {
-  draft: { label: 'Draft', tone: 'neutral' },
-  pending_payment: { label: 'Awaiting payment', tone: 'neutral' },
-  confirmed: { label: 'Confirmed', tone: 'success' },
-  assigned: { label: 'Professional assigned', tone: 'success' },
-  in_progress: { label: 'In progress', tone: 'primary' },
-  completed: { label: 'Completed', tone: 'dark' },
-  cancelled: { label: 'Cancelled', tone: 'danger' },
-  payment_failed: { label: 'Payment failed', tone: 'danger' },
-};
 
 /** Booking detail (CD-060; final design pending): status, timeline, services, address, bill. */
 export function BookingDetailScreen() {

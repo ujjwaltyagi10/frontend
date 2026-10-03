@@ -10,6 +10,7 @@ import { addressesApi, geoApi } from './endpoints/geo';
 import { checkoutApi } from './endpoints/payments';
 import { profileApi } from './endpoints/profile';
 import { recurringApi } from './endpoints/recurring';
+import { referralApi } from './endpoints/referral';
 import { passApi, walletApi } from './endpoints/wallet';
 
 export const api = {
@@ -24,6 +25,7 @@ export const api = {
   pass: passApi,
   profile: profileApi,
   recurring: recurringApi,
+  referral: referralApi,
   wallet: walletApi,
 };
 

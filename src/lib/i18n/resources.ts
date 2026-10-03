@@ -5,10 +5,11 @@ import errors from './locales/en/errors.json';
 import home from './locales/en/home.json';
 import onboarding from './locales/en/onboarding.json';
 import recurring from './locales/en/recurring.json';
+import referral from './locales/en/referral.json';
 import support from './locales/en/support.json';
 
 export const resources = {
-  en: { common, errors, home, onboarding, recurring, support },
+  en: { common, errors, home, onboarding, recurring, referral, support },
 } as const;
 
 export const defaultNS = 'common';

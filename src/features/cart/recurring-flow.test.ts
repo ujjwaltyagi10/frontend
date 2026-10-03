@@ -45,9 +45,13 @@ describe('weekly plans (mock backend)', () => {
       recurrence: { daysOfWeek: [0, 1, 2, 3, 4, 5, 6], slotTime: '09:00' },
     });
     const before = (await api.wallet.get()).totalPaise;
+    const already = new Set((await api.bookings.list('upcoming')).items.map((b) => b.id));
     const plan = await api.recurring.create(daily.quoteId, newIdempotencyKey());
 
-    const upcoming = (await api.bookings.list('upcoming')).items.filter((b) => b.mode === 'recurring');
+    // Only this plan's visits (the plan from the first test may have booked some too).
+    const upcoming = (await api.bookings.list('upcoming')).items.filter(
+      (b) => b.mode === 'recurring' && !already.has(b.id),
+    );
     expect(upcoming.length).toBeGreaterThan(0); // the next visit (within 48 h) is already booked
     expect(upcoming[0]).toMatchObject({ status: 'confirmed', totalPaise: plan.perVisitPaise });
     expect((await api.wallet.get()).totalPaise).toBe(before - upcoming.length * plan.perVisitPaise);

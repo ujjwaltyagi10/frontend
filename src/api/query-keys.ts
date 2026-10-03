@@ -14,6 +14,7 @@ export const queryKeys = {
   payment: (id: string) => ['payment', id] as const,
   offers: ['offers'] as const,
   recurringPlans: ['recurring-plans'] as const,
+  referral: ['referral'] as const,
   wallet: ['wallet'] as const,
   walletTransactions: ['wallet', 'transactions'] as const,
   pass: {
