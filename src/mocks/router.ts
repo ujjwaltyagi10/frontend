@@ -26,7 +26,12 @@ export function route(method: HttpMethod, path: string, handler: Handler) {
     keys.push(key);
     return '([^/]+)';
   });
-  routes.push({ method, regex: new RegExp(`^${pattern}$`), keys, handler });
+  const entry = { method, regex: new RegExp(`^${pattern}$`), keys, handler };
+  // A handler file hot-reloaded in development registers its routes again: replace the old
+  // handler instead of appending, or requests keep reaching the stale code (first match wins).
+  const existing = routes.findIndex((r) => r.method === method && r.regex.source === entry.regex.source);
+  if (existing >= 0) routes[existing] = entry;
+  else routes.push(entry);
 }
 
 /** Throw from a handler to return an API error response. */

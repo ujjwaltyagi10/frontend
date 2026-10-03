@@ -13,6 +13,7 @@ export const queryKeys = {
   slots: (hubId: string, date: string, durationMin: number) => ['slots', hubId, date, durationMin] as const,
   payment: (id: string) => ['payment', id] as const,
   offers: ['offers'] as const,
+  recurringPlans: ['recurring-plans'] as const,
   wallet: ['wallet'] as const,
   walletTransactions: ['wallet', 'transactions'] as const,
   pass: {

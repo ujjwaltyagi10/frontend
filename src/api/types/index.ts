@@ -130,6 +130,26 @@ export type CartItemInput = { serviceSlug: string; durationMin: number };
 /** Weekly plan for Recurring mode: 0 = Sunday … 6 = Saturday; slotTime is IST "HH:mm". */
 export type Recurrence = { daysOfWeek: number[]; slotTime: string };
 
+/**
+ * A weekly plan (Recurring mode, CD-041): the same services on the chosen weekdays at one time.
+ * Paid only from ChoreDash Money — each visit's amount is held 48 h before; a visit the balance
+ * can't cover 12 h before is skipped, not cancelled. Prices are the server's, per visit.
+ */
+export type RecurringPlan = {
+  id: Uuid;
+  status: 'active' | 'stopped';
+  /** 0 = Sunday … 6 = Saturday, as in Recurrence. */
+  daysOfWeek: number[];
+  /** IST HH:mm. */
+  slotTime: string;
+  items: { serviceSlug: string; name: string; imageUrl: string; durationMin: number }[];
+  perVisitPaise: Paise;
+  /** The next visit that will be booked; null once stopped. */
+  nextVisitAt: IsoDateTime | null;
+  addressLine: string;
+  createdAt: IsoDateTime;
+};
+
 /** PUT /cart replaces the whole cart and returns a fresh quote. Guests get a quote too (Q-16). */
 export type CartInput = {
   mode: BookingMode;

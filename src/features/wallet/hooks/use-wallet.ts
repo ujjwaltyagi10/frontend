@@ -1,12 +1,10 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 
-import { api, queryKeys, staleTimes } from '@/api';
+import { api, queryKeys } from '@/api';
 import { newIdempotencyKey } from '@/lib/ids';
 
-export function useWallet() {
-  return useQuery({ queryKey: queryKeys.wallet, queryFn: api.wallet.get, staleTime: staleTimes.wallet });
-}
+export { useWalletSummary as useWallet } from '@/hooks';
 
 const PENDING_REFRESH_MS = 10_000;
 

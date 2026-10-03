@@ -20,6 +20,7 @@ import {
 import { ARRIVAL_WINDOW_MIN } from '@/config/constants';
 import { track } from '@/lib/analytics';
 import { formatDay, formatMoney, formatTime } from '@/lib/format';
+import { useWalletSummary } from '@/hooks';
 import { useCartDraftStore, useLocationStore, useSessionStore } from '@/stores';
 
 import { BillCard } from '../components/bill-card';
@@ -29,7 +30,9 @@ import { CouponRow } from '../components/coupon-row';
 import { InstantUnavailableBanner } from '../components/instant-unavailable-banner';
 import { useCartQuote } from '../hooks/use-cart-quote';
 import { useCreateBooking } from '../hooks/use-create-booking';
+import { useStartRecurringPlan } from '../hooks/use-start-recurring-plan';
 import { getNextStep, type NextStep } from '../logic/next-step';
+import { describePlan } from '@/lib/recurrence';
 
 const ALL_MODES = [
   { value: 'instant', label: 'Instant' },
@@ -53,6 +56,8 @@ export function CartScreen() {
   const recurringEnabled = useFeatureFlag('recurring');
   const { quote, error, refetch, isStale } = useCartQuote();
   const createBooking = useCreateBooking();
+  const startPlan = useStartRecurringPlan();
+  const wallet = useWalletSummary();
 
   const modes = recurringEnabled ? ALL_MODES : ALL_MODES.filter((m) => m.value !== 'recurring');
   const step = getNextStep({
@@ -91,6 +96,14 @@ export function CartScreen() {
       onPress: () => quote && createBooking.mutate(quote.quoteId),
     },
   };
+  // Recurring is paid only from ChoreDash Money: no payment screen, but the balance must cover
+  // the first visit — otherwise the last step is topping up.
+  if (mode === 'recurring' && step === 'PAY' && quote) {
+    const short = (wallet.data?.totalPaise ?? 0) < quote.totalPaise;
+    actions.PAY = short
+      ? { title: 'Add money to start', onPress: () => router.push('/wallet') }
+      : { title: 'Start weekly plan', onPress: () => startPlan.mutate(quote.quoteId) };
+  }
 
   if (step === 'EMPTY') {
     return (
@@ -122,7 +135,7 @@ export function CartScreen() {
         title={action.title}
         size="lg"
         fullWidth
-        loading={(step === 'QUOTING' && !quote) || createBooking.isPending}
+        loading={(step === 'QUOTING' && !quote) || createBooking.isPending || startPlan.isPending}
         disabled={!action.onPress}
         onPress={action.onPress}
       />
@@ -158,9 +171,13 @@ export function CartScreen() {
 
       {mode === 'recurring' && (
         <Card onPress={() => router.push('/recurring')} accessibilityLabel="Set up recurring visits">
-          <Text weight="semibold">{recurrence ? 'Weekly plan set' : 'Choose days and a time'}</Text>
+          <Text weight="semibold">
+            {recurrence ? describePlan(recurrence.daysOfWeek, recurrence.slotTime) : 'Choose days and a time'}
+          </Text>
           <Text variant="caption" tone="muted">
-            Each visit is booked automatically and paid from ChoreDash Money.
+            {recurrence
+              ? 'Tap to change · paid from ChoreDash Money before each visit'
+              : 'Each visit is booked automatically and paid from ChoreDash Money.'}
           </Text>
         </Card>
       )}

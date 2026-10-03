@@ -31,6 +31,9 @@ persisted('wallet', {
   reset: () => Object.assign(wallet, { cash: 0, promo: 0, tx: [], giftCardFailures: 0, lockedUntil: 0 }),
 });
 
+/** Spendable balance (cash + rewards), for weekly plans' first-visit check. */
+export const walletTotal = () => wallet.cash + wallet.promo;
+
 export const bonusFor = (amount: number) =>
   amount >= RULES.bonus.minPaise ? Math.round((amount * RULES.bonus.bps) / 10_000) : 0;
 
@@ -48,6 +51,34 @@ function summary(): WalletSummary {
 
 function addTx(t: Omit<WalletTransaction, 'id' | 'createdAt'> & { paymentId?: string }) {
   wallet.tx.unshift({ id: newId('tx'), createdAt: new Date().toISOString(), ...t });
+}
+
+/**
+ * Pays one weekly-plan visit from the wallet: rewards first (they expire sooner), then cash.
+ * Returns false (and changes nothing) when the balance can't cover it — the visit is skipped.
+ */
+export function spendForVisit(amount: number, title: string): boolean {
+  if (wallet.cash + wallet.promo < amount) return false;
+  const fromPromo = Math.min(wallet.promo, amount);
+  const fromCash = amount - fromPromo;
+  wallet.promo -= fromPromo;
+  wallet.cash -= fromCash;
+  for (const [bucket, part] of [
+    ['promo', fromPromo],
+    ['cash', fromCash],
+  ] as const) {
+    if (part > 0)
+      addTx({
+        direction: 'debit',
+        bucket,
+        kind: 'booking',
+        title,
+        amountPaise: part,
+        status: 'success',
+        expiresAt: null,
+      });
+  }
+  return true;
 }
 
 /** Payment for a top-up went to the gateway: show both credits as Pending (F7). */

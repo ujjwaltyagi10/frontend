@@ -25,7 +25,7 @@ export default function MainLayout() {
         // iOS 26 (react-native-screens 4.26). The screen draws its own title.
         options={{ headerShown: false, presentation: 'modal' }}
       />
-      <Stack.Screen name="recurring" options={{ title: 'Recurring' }} />
+      <Stack.Screen name="recurring" options={{ title: 'Weekly plan' }} />
       <Stack.Screen name="address-form" options={{ title: 'Add address' }} />
       <Stack.Screen name="checkout" options={{ title: 'Payment options' }} />
       <Stack.Screen name="offers" options={{ title: 'Offers' }} />

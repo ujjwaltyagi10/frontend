@@ -2,12 +2,14 @@ import type { Booking } from '@/api/types';
 
 import { db, newId, once } from '../db';
 import { MockHttpError, requireUser, route } from '../router';
+import { bookDueVisits } from './recurring';
 
 const UPCOMING = ['confirmed', 'assigned', 'in_progress'];
 const PAST = ['completed', 'cancelled'];
 
 route('GET', '/bookings', (ctx) => {
   requireUser(ctx);
+  bookDueVisits();
   const wanted = ctx.query?.status === 'past' ? PAST : UPCOMING;
   const items = [...db.bookings.values()]
     .filter((b) => wanted.includes(b.status))

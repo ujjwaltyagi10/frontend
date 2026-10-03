@@ -46,6 +46,8 @@ export function Button({
 }: ButtonProps) {
   const v = variants[variant];
   const s = sizes[size];
+  // A link sits in line with text, so it has no side padding (keeps its height for the tap target).
+  const box = variant === 'link' ? s.box.replace(/\bpx-\d+\b/, 'px-0') : s.box;
   const isDisabled = disabled || loading;
   // A caller's own `self-*` must win; two self-* classes would race on stylesheet order.
   const align = /\bself-/.test(className) ? '' : fullWidth ? 'self-stretch' : 'self-start';
@@ -55,7 +57,7 @@ export function Button({
       accessibilityLabel={title}
       accessibilityState={{ disabled: !!isDisabled, busy: loading }}
       disabled={isDisabled}
-      className={`flex-row items-center justify-center gap-2 ${s.box} ${v.box} ${align} ${
+      className={`flex-row items-center justify-center gap-2 ${box} ${v.box} ${align} ${
         isDisabled ? 'opacity-40' : 'active:opacity-70'
       } ${className}`}
       {...rest}>

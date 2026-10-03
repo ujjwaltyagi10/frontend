@@ -9,6 +9,7 @@ import { configApi } from './endpoints/config';
 import { addressesApi, geoApi } from './endpoints/geo';
 import { checkoutApi } from './endpoints/payments';
 import { profileApi } from './endpoints/profile';
+import { recurringApi } from './endpoints/recurring';
 import { passApi, walletApi } from './endpoints/wallet';
 
 export const api = {
@@ -22,6 +23,7 @@ export const api = {
   geo: geoApi,
   pass: passApi,
   profile: profileApi,
+  recurring: recurringApi,
   wallet: walletApi,
 };
 

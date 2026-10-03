@@ -3,10 +3,22 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 
 import { illustrations } from '@/components/illustrations';
-import { Card, EmptyState, Screen, SegmentedTabs, SkeletonText, StateView, Text } from '@/components/ui';
+import {
+  Badge,
+  Card,
+  EmptyState,
+  Screen,
+  SegmentedTabs,
+  SkeletonText,
+  StateView,
+  Text,
+} from '@/components/ui';
 import { formatDay, formatMoney, formatTime } from '@/lib/format';
+import { useRecurringPlans } from '@/hooks';
+import { useTranslation } from '@/lib/i18n';
 import { useSessionStore } from '@/stores';
 
+import { PlanCard } from '../components/plan-card';
 import { useBookings } from '../hooks/use-bookings';
 
 const TABS = [
@@ -19,11 +31,24 @@ export function BookingsScreen({ showTitle = true }: { showTitle?: boolean }) {
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
   const isGuest = useSessionStore((s) => s.status === 'guest');
   const bookings = useBookings(tab);
+  const { t } = useTranslation('recurring');
+  // Active plans on Upcoming, stopped ones on Previous.
+  const plans = (useRecurringPlans().data ?? []).filter((p) =>
+    tab === 'upcoming' ? p.status === 'active' : p.status === 'stopped',
+  );
 
   return (
     <Screen testID="G1" edges={showTitle ? ['top'] : []}>
       {showTitle && <Text variant="h1">My Bookings</Text>}
       <SegmentedTabs options={TABS} value={tab} onChange={setTab} />
+      {!isGuest && plans.length > 0 && (
+        <>
+          <Text variant="h3">{t('plansTitle')}</Text>
+          {plans.map((p) => (
+            <PlanCard key={p.id} plan={p} />
+          ))}
+        </>
+      )}
       {isGuest ? (
         <EmptyState
           illustration={<EmptyArt />}
@@ -35,6 +60,13 @@ export function BookingsScreen({ showTitle = true }: { showTitle?: boolean }) {
         <SkeletonText lines={4} />
       ) : bookings.isError ? (
         <StateView state="error" error={bookings.error} onRetry={bookings.refetch} />
+      ) : bookings.data.items.length === 0 && plans.length > 0 ? (
+        // A plan but nothing booked yet: its visits are booked 48 h ahead — not "no bookings".
+        tab === 'upcoming' ? (
+          <Text variant="caption" tone="muted">
+            {t('visitsSoon')}
+          </Text>
+        ) : null
       ) : bookings.data.items.length === 0 ? (
         <EmptyState
           illustration={<EmptyArt />}
@@ -43,14 +75,20 @@ export function BookingsScreen({ showTitle = true }: { showTitle?: boolean }) {
           onAction={() => router.navigate('/')}
         />
       ) : (
-        bookings.data.items.map((b) => (
-          <Card key={b.id} onPress={() => router.push({ pathname: '/bookings/[id]', params: { id: b.id } })}>
-            <Text weight="semibold">{b.serviceNames.join(', ')}</Text>
-            <Text variant="caption" tone="muted">
-              {formatDay(b.slotStart)} · {formatTime(b.slotStart)} · {formatMoney(b.totalPaise)}
-            </Text>
-          </Card>
-        ))
+        <>
+          {plans.length > 0 && <Text variant="h3">{t('bookingsTitle')}</Text>}
+          {bookings.data.items.map((b) => (
+            <Card
+              key={b.id}
+              onPress={() => router.push({ pathname: '/bookings/[id]', params: { id: b.id } })}>
+              {b.mode === 'recurring' && <Badge label={t('planBadge')} />}
+              <Text weight="semibold">{b.serviceNames.join(', ')}</Text>
+              <Text variant="caption" tone="muted">
+                {formatDay(b.slotStart)} · {formatTime(b.slotStart)} · {formatMoney(b.totalPaise)}
+              </Text>
+            </Card>
+          ))}
+        </>
       )}
     </Screen>
   );

@@ -14,7 +14,9 @@ jest.mock('expo-secure-store', () => {
     deleteItemAsync: async (k: string) => void store.delete(k),
   };
 });
-jest.mock('expo-crypto', () => ({ randomUUID: () => 'test-uuid' }));
+// Unique per call, like the real thing — a constant key would make the mock replay unrelated requests.
+let mockUuidCount = 0;
+jest.mock('expo-crypto', () => ({ randomUUID: () => `test-uuid-${++mockUuidCount}` }));
 // Reanimated 4 runs worklets natively; use the JS mocks both libraries ship for Jest.
 jest.mock('react-native-worklets', () => require('react-native-worklets/src/mock'));
 jest.mock('react-native-reanimated', () => ({
