@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 
 import { api } from '@/api';
 import { track } from '@/lib/analytics';
+import { toast } from '@/components/ui';
 import { useSessionStore } from '@/stores';
 
 export function useSendOtp() {
@@ -15,8 +16,10 @@ export function useVerifyOtp() {
   const signIn = useSessionStore((s) => s.signIn);
   return useMutation({
     mutationFn: api.auth.verifyOtp,
-    onSuccess: ({ accessToken, refreshToken, user, isNewUser }) =>
-      signIn({ accessToken, refreshToken }, user, { isNewUser }),
+    onSuccess: async ({ accessToken, refreshToken, user, isNewUser, deletionCancelled }) => {
+      await signIn({ accessToken, refreshToken }, user, { isNewUser });
+      if (deletionCancelled) toast.info('Welcome back! Your account deletion has been cancelled.');
+    },
   });
 }
 

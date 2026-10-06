@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router';
 
+import { usePushNotifications } from '@/lib/push';
 import { colors } from '@/theme';
 
 /**
@@ -7,6 +8,7 @@ import { colors } from '@/theme';
  * (not inside a tab), so Back always returns to whichever screen opened it.
  */
 export default function MainLayout() {
+  usePushNotifications();
   return (
     <Stack
       screenOptions={{

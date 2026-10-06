@@ -29,6 +29,11 @@ export function useSendDeletionOtp() {
   });
 }
 
+/** H10: can the account be deleted now, and what ChoreDash Money / Pass would be lost. */
+export function useDeletionCheck() {
+  return useQuery({ queryKey: ['me', 'deletion'], queryFn: api.profile.deletionCheck, staleTime: 0 });
+}
+
 /** H10 step 2: erase the account, then forget everything on the device. */
 export function useDeleteAccount() {
   const signOut = useSessionStore((s) => s.signOut);

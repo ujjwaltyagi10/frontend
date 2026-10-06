@@ -1,5 +1,5 @@
 // Opt-in: runs the app's real API client (fetch transport, headers, idempotency, 204s) against a
-// running Go backend in development mode. Skipped unless LIVE_API_URL is set:
+// running backend (backendNode) in development mode. Skipped unless LIVE_API_URL is set:
 //   LIVE_API_URL=http://localhost:8080/v1 npx jest src/api/live-backend.test.ts
 const LIVE = process.env.LIVE_API_URL;
 const describeLive = LIVE ? describe : describe.skip;

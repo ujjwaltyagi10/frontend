@@ -25,6 +25,7 @@ const show = (message: string) => useToastStore.setState({ current: { id: nextId
  */
 export const toast = {
   error: (message: string) => show(message),
+  info: (message: string) => show(message),
   hide: () => useToastStore.setState({ current: null }),
 };
 

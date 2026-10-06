@@ -11,6 +11,8 @@ const tones = {
   info: { box: 'bg-card border border-line', icon: icons.info, text: 'default' },
   warning: { box: 'bg-warning', icon: icons.warning, text: 'default' },
   offer: { box: 'bg-primary-deep', icon: icons.gift, text: 'onPrimary' },
+  // Something the user will lose (e.g. ChoreDash Money on account deletion).
+  danger: { box: 'bg-card border-2 border-danger', icon: icons.warning, text: 'danger' },
 } as const;
 
 type Props = {
@@ -24,7 +26,7 @@ type Props = {
   art?: ImageSource;
 };
 
-/** Inline notice: "No instant slots" / "Large order" (warning), Pass and wallet offers (offer). */
+/** Inline notice: "No instant slots" / "Large order" (warning), Pass and wallet offers (offer), losses (danger). */
 export function Banner({ tone = 'info', title, message, onPress, action, art }: Props) {
   const t = tones[tone];
   const offer = tone === 'offer';
@@ -35,7 +37,10 @@ export function Banner({ tone = 'info', title, message, onPress, action, art }: 
           <Image source={art} style={{ width: 46, height: 46 }} contentFit="contain" accessible={false} />
         </View>
       ) : (
-        <Icon name={t.icon} color={offer ? colors.brand.onPrimary : colors.text.primary} />
+        <Icon
+          name={t.icon}
+          color={offer ? colors.brand.onPrimary : tone === 'danger' ? colors.danger : colors.text.primary}
+        />
       )}
       <View className="flex-1 gap-0.5">
         <Text weight="semibold" tone={t.text}>

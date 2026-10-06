@@ -48,13 +48,17 @@ describe('profile (mock backend)', () => {
     expect(useLocationStore.getState().location).toBeNull();
   });
 
-  it('needs the OTP to delete, and erases the account', async () => {
+  it('needs the OTP to delete; logging in again within 30 days cancels it', async () => {
     await login('9123456781');
+    const check = await api.profile.deletionCheck();
+    expect(check).toMatchObject({ canDelete: true, graceDays: 30 });
     expect(codeOf(await api.profile.remove('000000').catch((e: unknown) => e))).toBe('OTP_INVALID');
-    await api.profile.remove('123456');
-    // Like the real backend: sessions are revoked, so the old token is refused.
+    const { deletionDueAt } = await api.profile.remove('123456');
+    expect(Math.round((Date.parse(deletionDueAt) - Date.now()) / 86_400_000)).toBe(30);
+    // Like the real backend: logged out everywhere, so the old token is refused.
     expect(codeOf(await api.profile.me().catch((e: unknown) => e))).toBe('UNAUTHORIZED');
-    // Same number signs up again as a new account.
-    expect((await login('9123456781')).isNewUser).toBe(true);
+    // Back within the grace period: the same account, and the deletion is cancelled.
+    const back = await login('9123456781');
+    expect(back).toMatchObject({ isNewUser: false, deletionCancelled: true });
   });
 });

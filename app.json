@@ -9,7 +9,15 @@
     "userInterfaceStyle": "light",
     "ios": {
       "icon": "./assets/images/icon.png",
-      "bundleIdentifier": "com.choredash.customer"
+      "bundleIdentifier": "com.choredash.customer",
+      "infoPlist": {
+        "LSApplicationQueriesSchemes": [
+          "tez",
+          "phonepe",
+          "paytmmp"
+        ],
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.choredash.customer",
@@ -21,7 +29,10 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "permissions": ["android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION"]
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "output": "static",
@@ -50,12 +61,25 @@
           "locationWhenInUsePermission": "ChoreDash uses your location to show house-help services available near you."
         }
       ],
-      "expo-video"
+      "expo-video",
+      [
+        "expo-notifications",
+        {
+          "color": "#38BDF8"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
-    "backgroundColor": "#FFFFFF"
+    "backgroundColor": "#FFFFFF",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1987dda9-bfd3-4a1a-a287-bf033159b50e"
+      }
+    },
+    "owner": "ujjwalt01"
   }
 }

@@ -32,6 +32,10 @@ route('POST', '/auth/otp/send', ({ body }) => {
 });
 
 /** Every number that has signed up — "new" means first time here, like the backend's users table. */
+/** Accounts scheduled for deletion; logging in again cancels it. */
+export const pendingDeletion = new Set<string>();
+persisted('pendingDeletion', setPart(pendingDeletion));
+
 export const knownPhones = new Set<string>();
 persisted('knownPhones', setPart(knownPhones));
 
@@ -54,8 +58,9 @@ route('POST', '/auth/otp/verify', ({ body }) => {
     };
   }
   const { whatsappOptIn: _w, ...user } = db.me!;
-  deletedPhones.delete(body.phone); // signing up again is a new account
-  return { ...tokens('user', body.phone), isNewUser, user };
+  deletedPhones.delete(body.phone); // new tokens work again
+  const deletionCancelled = pendingDeletion.delete(body.phone);
+  return { ...tokens('user', body.phone), isNewUser, user, ...(deletionCancelled ? { deletionCancelled } : {}) };
 });
 
 route('POST', '/auth/guest', () => tokens('guest'));

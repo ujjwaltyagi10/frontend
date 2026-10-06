@@ -32,7 +32,20 @@ export type User = {
   lastName: string | null;
   email: string | null;
 };
-export type OtpVerifyResponse = AuthTokens & { user: User; isNewUser: boolean };
+/** deletionCancelled: the account was scheduled for deletion and this login cancelled it. */
+export type OtpVerifyResponse = AuthTokens & { user: User; isNewUser: boolean; deletionCancelled?: boolean };
+
+/** GET /me/deletion (H10): what deleting the account now would mean. */
+export type DeletionCheck = {
+  canDelete: boolean;
+  /** Why it can't be deleted yet. */
+  reason: 'open_bookings' | null;
+  /** ChoreDash Money that is wiped out when the account is erased. */
+  balancePaise: Paise;
+  passActive: boolean;
+  /** Days before erasure; logging in again in that time cancels the deletion. */
+  graceDays: number;
+};
 
 // ---- Geo ------------------------------------------------------------------
 
