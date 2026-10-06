@@ -21,7 +21,6 @@
     },
     "android": {
       "package": "com.choredash.customer",
-      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#0EA5E9",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
